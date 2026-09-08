@@ -12,7 +12,7 @@ import io
 # ==========================================
 # 0. 페이지 및 깃허브 설정
 # ==========================================
-st.set_page_config(page_title="폰트 클러스터링 통합 대시보드", layout="wide")
+st.set_page_config(page_title="폰트 클러스터링 통합 대시보드 v2", layout="wide")
 
 try:
     GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
@@ -131,7 +131,7 @@ def load_data_U(file_path):
 def show_front_image_grid(df):
     """선택한 그룹의 전면 사진을 그리드로 보여주는 함수"""
     st.divider()
-    st.subheader("📦 그룹별 전면 사진 모아보기")
+    st.subheader("그룹별 전면 사진")
     
     groups = sorted(df['cluster'].unique())
     selected_group = st.radio("확인할 그룹을 선택하세요:", groups, horizontal=True)

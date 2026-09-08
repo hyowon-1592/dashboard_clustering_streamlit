@@ -51,12 +51,17 @@ def get_image_from_github(folder_name, file_name_without_ext):
 
 def get_text_from_github(file_path):
     """GitHub Private Repo에서 텍스트 파일을 읽어오기"""
-    # DATA_ROOT 경로 추가
     url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{DATA_ROOT}/{file_path}"
     response = requests.get(url, headers=HEADERS)
+    
     if response.status_code == 200:
         return response.text
-    return None
+    else:
+        # 실패 이유를 화면에 직접 출력합니다 (원인 파악용)
+        st.error(f"요청 URL: {url}")
+        st.error(f"실패 상태 코드: {response.status_code}")
+        st.error(f"깃허브 응답 내용: {response.text}")
+        return None
 
 # ==========================================
 # 2. C & G 폰트 공통 데이터 로드 함수

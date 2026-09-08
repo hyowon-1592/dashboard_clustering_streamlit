@@ -171,44 +171,16 @@ def show_CG_page(font_name):
         col1, col2 = st.columns([2, 1])
         
         with col1:
-            st.info("💡 **마우스로 그래프 위를 드래그**하여 원하는 영역의 데이터를 선택해보세요!")
-            fig = go.Figure()
+            chart_placeholder = st.empty()
             
-            # 클러스터별 데이터 렌더링
-            for cl in sorted(df['cluster'].unique()):
-                c_df = df[df['cluster'] == cl]
-                fig.add_trace(go.Scatter(
-                    x=c_df['top_ratio'], y=c_df['bottom_ratio'], mode='markers',
-                    marker=dict(color=COLOR_MAP.get(cl, '#333'), size=8),
-                    name=f'그룹 {cl}', customdata=c_df[['filename']],
-                    hovertemplate="<b>%{customdata[0]}</b><br>상단: %{x}<br>하단: %{y}<extra></extra>"
-                ))
+            slider_col1, slider_col2 = st.columns(2)
+            selected_x = slider_col1.slider("X축 (상단 대비 비율) 범위 선택", 0.0, 5.0, (0.0, 5.0), step=0.1)
+            selected_y = slider_col2.slider("Y축 (하단 대비 비율) 범위 선택", 0.0, 5.0, (0.0, 5.0), step=0.1)
             
-            # 중심점 렌더링
-            fig.add_trace(go.Scatter(
-                x=centroids[:, 0], y=centroids[:, 1], mode='markers',
-                marker=dict(color='red', symbol='x', size=15, line=dict(width=2, color='darkred')), 
-                name='중심점', hoverinfo='skip'
-            ))
-            
-            # 마우스 드래그를 기본 모드로 설정 (dragmode='select')
-            fig.update_layout(
-                height=600, margin=dict(l=10, r=10, t=30, b=10),
-                xaxis_title="상단 대비 비율 (배)", yaxis_title="하단 대비 비율 (배)",
-                dragmode='select' 
-            )
-            
-            # on_select 속성으로 드래그한 점들의 데이터를 받아옴
-            event = st.plotly_chart(fig, on_select="rerun", selection_mode="points", use_container_width=True)
-                
-        with col2:
-            # 드래그로 선택된 데이터 추출
-            selected_filenames = []
-            if event and len(event.selection.points) > 0:
-                selected_filenames = [pt["customdata"][0] for pt in event.selection.points if "customdata" in pt]
-            
-            # 선택된 데이터가 있으면 필터링, 없으면 전체 표시
-            selected_df = df[df['filename'].isin(selected_filenames)] if selected_filenames else df
+            mask = (df['top_ratio'] >= selected_x[0]) & (df['top_ratio'] <= selected_x[1]) & \
+                   (df['bottom_ratio'] >= selected_y[0]) & (df['bottom_ratio'] <= selected_y[1])
+            df['is_selected'] = mask
+            selected_df = df[mask]
             
             header_col2.markdown(
                 f"<div style='text-align: right; margin-top: 25px; color: #a1c8ff; font-weight: bold;'>"
@@ -216,10 +188,46 @@ def show_CG_page(font_name):
                 unsafe_allow_html=True
             )
             
-            # 점 1개를 '클릭'했을 때 상단에 상세 이미지 프리뷰 띄우기
-            if len(selected_filenames) == 1:
-                st.subheader("선택된 이미지 상세 보기")
-                selected_filename = selected_filenames[0]
+            fig = go.Figure()
+            
+            unselected = df[~df['is_selected']]
+            fig.add_trace(go.Scatter(
+                x=unselected['top_ratio'], y=unselected['bottom_ratio'], mode='markers',
+                marker=dict(color='rgba(150, 150, 150, 0.2)', size=6), hoverinfo='skip', showlegend=False
+            ))
+            
+            for cl in sorted(selected_df['cluster'].unique()):
+                c_df = selected_df[selected_df['cluster'] == cl]
+                fig.add_trace(go.Scatter(
+                    x=c_df['top_ratio'], y=c_df['bottom_ratio'], mode='markers',
+                    marker=dict(color=COLOR_MAP.get(cl, '#333'), size=8),
+                    name=f'그룹 {cl}', customdata=c_df[['filename']],
+                    hovertemplate="<b>%{customdata[0]}</b><br>상단: %{x}<br>하단: %{y}<extra></extra>"
+                ))
+            
+            fig.add_trace(go.Scatter(
+                x=centroids[:, 0], y=centroids[:, 1], mode='markers',
+                marker=dict(color='red', symbol='x', size=15, line=dict(width=2, color='darkred')), 
+                name='중심점', hoverinfo='skip'
+            ))
+            
+            fig.add_shape(
+                type="rect",
+                x0=selected_x[0], y0=selected_y[0], x1=selected_x[1], y1=selected_y[1],
+                fillcolor="green", opacity=0.15, line=dict(color="#4CAF50", width=2), layer="below"
+            )
+            
+            fig.update_layout(height=600, margin=dict(l=10, r=10, t=30, b=10),
+                              xaxis_title="상단 대비 비율 (배)", yaxis_title="하단 대비 비율 (배)")
+            
+            with chart_placeholder:
+                event = st.plotly_chart(fig, on_select="rerun", selection_mode="points", use_container_width=True)
+                
+        with col2:
+            st.subheader("선택된 이미지 (그래프 클릭)")
+            
+            if event and len(event.selection.points) > 0 and "customdata" in event.selection.points[0]:
+                selected_filename = event.selection.points[0]["customdata"][0]
                 orig_fname = selected_filename.split('_crop')[0] + '_crop' if '_crop' in selected_filename else selected_filename
                 
                 orig_img = get_image_from_github("Seg_RGB", orig_fname)
@@ -231,7 +239,6 @@ def show_CG_page(font_name):
                 if crop_img: c2.image(crop_img, caption="결과(크롭)", use_container_width=True)
                 st.divider()
                 
-            # 데이터 카드 그리드 (드래그한 데이터 모두 표시)
             st.markdown(f"**범위 내 데이터 카드 ({len(selected_df)}개)**")
             card_container = st.container(height=550)
             
@@ -272,11 +279,29 @@ def show_U_page():
         col1, col2 = st.columns([2, 1])
         
         with col1:
-            st.info("💡 **마우스로 그래프 위를 드래그**하여 원하는 영역의 데이터를 선택해보세요!")
+            chart_placeholder = st.empty()
+            selected_range = st.slider("X축 (비율) 범위 선택", 0.0, 5.0, (0.0, 5.0), step=0.1)
+            
+            mask = (df['ratio'] >= selected_range[0]) & (df['ratio'] <= selected_range[1])
+            df['is_selected'] = mask
+            selected_df = df[mask]
+            
+            header_col2.markdown(
+                f"<div style='text-align: right; margin-top: 25px; color: #a1c8ff; font-weight: bold;'>"
+                f"전체 데이터: {len(df)}개 | <span style='color: #4CAF50;'>선택됨: {len(selected_df)}개</span></div>", 
+                unsafe_allow_html=True
+            )
+            
             fig = go.Figure()
             
-            for cl in sorted(df['cluster'].unique()):
-                c_df = df[df['cluster'] == cl]
+            unselected = df[~df['is_selected']]
+            fig.add_trace(go.Scatter(
+                x=unselected['ratio'], y=unselected['jitter'], mode='markers',
+                marker=dict(color='rgba(150, 150, 150, 0.2)', size=6), hoverinfo='skip', showlegend=False
+            ))
+            
+            for cl in sorted(selected_df['cluster'].unique()):
+                c_df = selected_df[selected_df['cluster'] == cl]
                 fig.add_trace(go.Scatter(
                     x=c_df['ratio'], y=c_df['jitter'], mode='markers',
                     marker=dict(color=COLOR_MAP.get(cl, '#333'), size=8),
@@ -290,30 +315,20 @@ def show_U_page():
                 name='중심점', hoverinfo='skip'
             ))
             
-            fig.update_yaxes(visible=False, showticklabels=False)
-            fig.update_layout(
-                height=600, margin=dict(l=10, r=10, t=30, b=10),
-                dragmode='select' # 마우스 드래그를 기본 모드로 설정
-            )
+            fig.add_vrect(x0=selected_range[0], x1=selected_range[1],
+                          fillcolor="green", opacity=0.15, layer="below", line_width=2, line_color="#4CAF50")
             
-            event = st.plotly_chart(fig, on_select="rerun", selection_mode="points", use_container_width=True)
+            fig.update_yaxes(visible=False, showticklabels=False)
+            fig.update_layout(height=600, margin=dict(l=10, r=10, t=30, b=10))
+            
+            with chart_placeholder:
+                event = st.plotly_chart(fig, on_select="rerun", selection_mode="points", use_container_width=True)
                 
         with col2:
-            selected_filenames = []
-            if event and len(event.selection.points) > 0:
-                selected_filenames = [pt["customdata"][0] for pt in event.selection.points if "customdata" in pt]
+            st.subheader("선택된 이미지 (그래프 클릭)")
             
-            selected_df = df[df['filename'].isin(selected_filenames)] if selected_filenames else df
-            
-            header_col2.markdown(
-                f"<div style='text-align: right; margin-top: 25px; color: #a1c8ff; font-weight: bold;'>"
-                f"전체 데이터: {len(df)}개 | <span style='color: #4CAF50;'>선택됨: {len(selected_df)}개</span></div>", 
-                unsafe_allow_html=True
-            )
-            
-            if len(selected_filenames) == 1:
-                st.subheader("선택된 이미지 상세 보기")
-                selected_filename = selected_filenames[0]
+            if event and len(event.selection.points) > 0 and "customdata" in event.selection.points[0]:
+                selected_filename = event.selection.points[0]["customdata"][0]
                 orig_fname = selected_filename.split('_crop')[0] + '_crop' if '_crop' in selected_filename else selected_filename
                 
                 orig_img = get_image_from_github("Seg_RGB", orig_fname)

@@ -17,29 +17,31 @@ st.set_page_config(page_title="폰트 클러스터링 통합 대시보드", layo
 # Streamlit Secrets에서 GitHub 정보 가져오기
 try:
     GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
-    REPO_OWNER = st.secrets["REPO_OWNER"] # 깃허브 아이디
-    REPO_NAME = st.secrets["REPO_NAME"]   # Private 레포지토리 이름
-    BRANCH = st.secrets.get("BRANCH", "main") # 브랜치명 (보통 main)
+    REPO_OWNER = st.secrets["REPO_OWNER"] # 깃허브 아이디 (예: hyowon-1592)
+    REPO_NAME = st.secrets["REPO_NAME"]   # 레포지토리 이름 (예: dashboard_clustering)
+    BRANCH = st.secrets.get("BRANCH", "main")
 except KeyError:
     st.error("Streamlit Secrets 설정이 누락되었습니다. 깃허브 토큰과 레포지토리 정보를 설정해주세요.")
     st.stop()
 
-# GitHub Raw API 통신을 위한 헤더 설정
 HEADERS = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github.v3.raw"
 }
 
+# 💡 수정된 부분: 데이터가 들어있는 최상위 폴더 경로 지정
+DATA_ROOT = "data_clustering_v1"
+
 # ==========================================
 # 1. 공통 헬퍼 함수 (GitHub에서 파일 읽어오기)
 # ==========================================
 @st.cache_data(show_spinner=False)
-def get_image_from_github(base_dir, file_name_without_ext):
+def get_image_from_github(folder_name, file_name_without_ext):
     """GitHub Private Repo에서 이미지를 다운로드하여 PIL Image로 반환"""
     extensions = ['.jpg', '.png', '.jpeg', '.JPG', '.PNG', '.JPEG']
     for ext in extensions:
-        # GitHub Raw URL 생성
-        file_path = f"{base_dir}/{file_name_without_ext}{ext}"
+        # DATA_ROOT 경로 추가
+        file_path = f"{DATA_ROOT}/{folder_name}/{file_name_without_ext}{ext}"
         url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{file_path}"
         
         response = requests.get(url, headers=HEADERS)
@@ -49,7 +51,8 @@ def get_image_from_github(base_dir, file_name_without_ext):
 
 def get_text_from_github(file_path):
     """GitHub Private Repo에서 텍스트 파일을 읽어오기"""
-    url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{file_path}"
+    # DATA_ROOT 경로 추가
+    url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{DATA_ROOT}/{file_path}"
     response = requests.get(url, headers=HEADERS)
     if response.status_code == 200:
         return response.text
@@ -73,7 +76,7 @@ def load_data_2D(file_path):
         
         if top_match and bottom_match:
             top_val, bottom_val = float(top_match.group(1)), float(bottom_match.group(1))
-            if top_val < 5.0 and bottom_val < 5.0:  # 이상치 제외
+            if top_val < 5.0 and bottom_val < 5.0:
                 data_list.append({"filename": filename, "top_ratio": top_val, "bottom_ratio": bottom_val})
                 
     if not data_list: return None, None
@@ -90,7 +93,7 @@ def show_CG_page(font_name):
     st.title(f"{font_name} 폰트 상단/하단 두께 비율 클러스터링")
     
     result_folder = f"{font_name}_result"
-    file_path = f"{result_folder}/{font_name}_basic_analysis.txt" # 깃허브 상의 경로
+    file_path = f"{result_folder}/{font_name}_basic_analysis.txt"
     
     df, centroids = load_data_2D(file_path)
     if df is not None:

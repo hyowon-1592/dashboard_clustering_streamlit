@@ -12,7 +12,7 @@ import io
 # ==========================================
 # 0. 페이지 및 깃허브 설정
 # ==========================================
-st.set_page_config(page_title="폰트 클러스터링 통합 대시보드 v2", layout="wide")
+st.set_page_config(page_title="폰트 클러스터링 통합 대시보드", layout="wide")
 
 # Streamlit Secrets에서 GitHub 정보 가져오기
 try:
@@ -197,7 +197,7 @@ def show_U_page():
 # ==========================================
 # 4. 메인 네비게이션
 # ==========================================
-st.sidebar.title("폰트 분석 메뉴")
+st.sidebar.title("폰트 분석 메뉴 V2")
 menu = st.sidebar.radio("알파벳 선택", ["C 폰트 분석", "G 폰트 분석", "U 폰트 분석"])
 
 if menu == "C 폰트 분석":

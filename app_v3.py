@@ -750,6 +750,8 @@ elif menu == "전체 폰트 교집합 (C, G, U, R)":
         # 파일명을 통일 (KAI000000 (0)_crop)하여 원활한 병합(Merge) 진행
         for d in [df_c, df_g, df_u, df_r_thick, df_r_width]:
             d['orig_fname'] = d['filename'].apply(lambda x: x.split('_crop')[0] + '_crop' if '_crop' in x else x)
+
+            d.drop_duplicates(subset=['orig_fname'], keep='first', inplace=True)
         
         # 이름 간소화 및 병합
         c_sub = df_c[['orig_fname', 'cluster']].rename(columns={'cluster': 'C_group'})

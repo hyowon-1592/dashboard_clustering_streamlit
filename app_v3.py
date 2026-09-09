@@ -677,16 +677,20 @@ elif menu == "C, G, U 공통 그룹 찾기":
         if not common_df.empty:
             st.dataframe(common_df, use_container_width=True)
             
-            with st.expander("선택된 교집합 폰트 원본 이미지 모두 보기", expanded=False):
+            front_file_list = get_front_image_list()
+            with st.expander("선택된 교집합 폰트 전면 이미지 모두 보기", expanded=False):
                 cols = st.columns(5)
                 col_idx = 0
                 for _, row in common_df.iterrows():
-                    img = get_image_from_github("Seg_RGB", row['orig_fname'])
-                    if img:
-                        with cols[col_idx % 5]:
-                            st.image(img, caption=row['orig_fname'].split(' ')[0], use_container_width=True)
-                        col_idx += 1
-                if col_idx == 0: st.write("이미지를 불러올 수 없습니다.")
+                    prefix = row['orig_fname'].split(' ')[0]
+                    matched_file = find_front_image(prefix, front_file_list)
+                    if matched_file:
+                        img = get_front_image_from_github(matched_file)
+                        if img:
+                            with cols[col_idx % 5]:
+                                st.image(img, caption=prefix, use_container_width=True)
+                            col_idx += 1
+                if col_idx == 0: st.write("전면 이미지를 찾을 수 없거나 불러올 수 없습니다.")
 
 elif menu == "R 다리 stroke 클러스터링":
     folder_name = "R_result_thickness"
@@ -741,16 +745,21 @@ elif menu == "R 두께 & 너비 공통 그룹 찾기":
         if not common_df.empty:
             st.dataframe(common_df[['filename', 'thick_val', 'width_val']], use_container_width=True)
             
-            with st.expander(f"선택된 교집합 이미지 모두 보기", expanded=False):
+            front_file_list = get_front_image_list()
+            with st.expander(f"선택된 교집합 전면 이미지 모두 보기", expanded=False):
                 cols = st.columns(5)
                 col_idx = 0
                 for _, row in common_df.iterrows():
                     orig_fname = get_orig_fname(row['filename'])
-                    img = get_image_from_github("Seg_RGB", orig_fname)
-                    if img:
-                        with cols[col_idx % 5]:
-                            st.image(img, caption=f"{orig_fname.split(' ')[0]}\n({row['thick_val']}px, {row['width_val']}px)", use_container_width=True)
-                        col_idx += 1
+                    prefix = orig_fname.split(' ')[0]
+                    matched_file = find_front_image(prefix, front_file_list)
+                    if matched_file:
+                        img = get_front_image_from_github(matched_file)
+                        if img:
+                            with cols[col_idx % 5]:
+                                st.image(img, caption=f"{prefix}\n({row['thick_val']}px, {row['width_val']}px)", use_container_width=True)
+                            col_idx += 1
+                if col_idx == 0: st.write("전면 이미지를 찾을 수 없거나 불러올 수 없습니다.")
     else:
         st.error("데이터를 불러오지 못했습니다. 텍스트 파일 경로를 확인해주세요.")
 
@@ -800,15 +809,19 @@ elif menu == "전체 폰트 교집합 (C, G, U, R)":
         if not final_df.empty:
             st.dataframe(final_df, use_container_width=True)
             
-            with st.expander("최종 교집합 폰트 원본 이미지 모두 보기", expanded=False):
+            front_file_list = get_front_image_list()
+            with st.expander("최종 교집합 폰트 전면 이미지 모두 보기", expanded=False):
                 cols = st.columns(5)
                 col_idx = 0
                 for _, row in final_df.iterrows():
-                    img = get_image_from_github("Seg_RGB", row['orig_fname'])
-                    if img:
-                        with cols[col_idx % 5]:
-                            st.image(img, caption=row['orig_fname'].split(' ')[0], use_container_width=True)
-                        col_idx += 1
-                if col_idx == 0: st.write("이미지를 불러올 수 없습니다.")
+                    prefix = row['orig_fname'].split(' ')[0]
+                    matched_file = find_front_image(prefix, front_file_list)
+                    if matched_file:
+                        img = get_front_image_from_github(matched_file)
+                        if img:
+                            with cols[col_idx % 5]:
+                                st.image(img, caption=prefix, use_container_width=True)
+                            col_idx += 1
+                if col_idx == 0: st.write("전면 이미지를 찾을 수 없거나 불러올 수 없습니다.")
     else:
         st.error("데이터를 전부 불러오지 못했습니다. 각 폴더와 텍스트 파일을 확인해주세요.")

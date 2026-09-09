@@ -79,35 +79,35 @@ def get_front_image_from_github(file_name):
         return Image.open(io.BytesIO(response.content))
     return None
 
-def show_front_image_grid(df):
-    st.divider()
-    st.subheader("📦 그룹별 전면 사진 모아보기")
+# def show_front_image_grid(df):
+#     st.divider()
+#     st.subheader("📦 그룹별 전면 사진 모아보기")
     
-    groups = sorted(df['cluster'].unique())
-    selected_group = st.radio("확인할 그룹을 선택하세요:", groups, horizontal=True)
+#     groups = sorted(df['cluster'].unique())
+#     selected_group = st.radio("확인할 그룹을 선택하세요:", groups, horizontal=True)
     
-    if selected_group:
-        prefixes = df[df['cluster'] == selected_group]['filename'].apply(lambda x: x.split(" ")[0]).unique()
-        front_file_list = get_front_image_list()
+#     if selected_group:
+#         prefixes = df[df['cluster'] == selected_group]['filename'].apply(lambda x: x.split(" ")[0]).unique()
+#         front_file_list = get_front_image_list()
         
-        if not front_file_list:
-            st.warning("GitHub 저장소의 'front_image' 폴더에서 파일 목록을 가져오지 못했습니다.")
-            return
+#         if not front_file_list:
+#             st.warning("GitHub 저장소의 'front_image' 폴더에서 파일 목록을 가져오지 못했습니다.")
+#             return
             
-        cols = st.columns(5)
-        col_idx = 0
+#         cols = st.columns(5)
+#         col_idx = 0
         
-        for prefix in prefixes:
-            matched_file = find_front_image(prefix, front_file_list)
-            if matched_file:
-                img = get_front_image_from_github(matched_file)
-                if img:
-                    with cols[col_idx % 5]:
-                        st.image(img, use_container_width=True, caption=matched_file)
-                    col_idx += 1
+#         for prefix in prefixes:
+#             matched_file = find_front_image(prefix, front_file_list)
+#             if matched_file:
+#                 img = get_front_image_from_github(matched_file)
+#                 if img:
+#                     with cols[col_idx % 5]:
+#                         st.image(img, use_container_width=True, caption=matched_file)
+#                     col_idx += 1
         
-        if col_idx == 0:
-            st.info("해당 그룹의 전면 사진 파일이 없습니다.")
+#         if col_idx == 0:
+#             st.info("해당 그룹의 전면 사진 파일이 없습니다.")
 
 # ==========================================
 # 2. 데이터 로더 함수 (정규표현식 파싱)

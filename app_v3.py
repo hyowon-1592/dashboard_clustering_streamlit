@@ -12,7 +12,7 @@ import io
 # ==========================================
 # 0. 페이지 및 깃허브 설정
 # ==========================================
-st.set_page_config(page_title="R 폰트 클러스터링 대시보드", layout="wide")
+st.set_page_config(page_title="R 폰트 클러스터링 대시보드 v3", layout="wide")
 
 try:
     GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
@@ -32,7 +32,7 @@ RAW_HEADERS = {
     "Accept": "application/vnd.github.v3.raw"
 }
 
-DATA_ROOT = "data_clustering_v2"
+DATA_ROOT = "data_clustering_v3"
 COLOR_MAP = {'0': '#EF553B', '1': '#636EFA', '2': '#00CC96', '3': '#AB63FA'}
 RESULT_FOLDER = "R_result" # 결과 이미지가 있는 폴더명
 
@@ -82,7 +82,7 @@ def get_front_image_from_github(file_name):
 
 def show_front_image_grid(df):
     st.divider()
-    st.subheader("📦 그룹별 전면 사진 모아보기")
+    st.subheader("그룹별 전면 사진 모아보기")
     
     groups = sorted(df['cluster'].unique())
     selected_group = st.radio("확인할 그룹을 선택하세요:", groups, horizontal=True)
@@ -247,7 +247,7 @@ def render_1d_page(title, df, centroids, x_label, file_path):
             if crop_img: c2.image(crop_img, caption="결과(크롭)", use_container_width=True)
             st.divider()
             
-        st.markdown(f"**범위 내 데이터 카드 ({len(selected_df)}개)**")
+        st.markdown(f"**범위 내 데이터 ({len(selected_df)}개)**")
         card_container = st.container(height=550)
         
         for idx, row in selected_df.iterrows():
@@ -383,9 +383,9 @@ def render_2d_page(title, df, centroids, file_path):
 # ==========================================
 st.sidebar.title("R 폰트 분석 메뉴")
 menu = st.sidebar.radio("분석 항목 선택", [
-    "다리 픽셀 두께 클러스터링", 
-    "중앙 좌표 클러스터링", 
-    "너비 클러스터링"
+    "다리 stroke 클러스터링", 
+    "centre coordinate 클러스터링", 
+    "width 클러스터링"
 ])
 
 # [중요] 실제 GitHub에 존재하는 txt 파일명으로 아래 파일 경로들을 수정해주세요.

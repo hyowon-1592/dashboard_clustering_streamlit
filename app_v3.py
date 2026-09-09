@@ -717,17 +717,17 @@ elif menu == "R 두께 & 너비 공통 그룹 찾기":
             on='filename'
         )
         
-        st.subheader("📊 전체 교집합 분포 현황")
+        st.subheader("전체 교집합 분포 현황")
         cross_tab = pd.crosstab(merged_df['cluster_thick'], merged_df['cluster_width'])
         cross_tab.index.name = "두께 그룹 (행)"
         cross_tab.columns.name = "너비 그룹 (열)"
         st.dataframe(cross_tab, use_container_width=True)
         st.divider()
         
-        st.subheader("🔍 특정 그룹 조합 이미지 확인")
+        st.subheader("특정 그룹 조합 이미지 확인")
         sel_col1, sel_col2 = st.columns(2)
-        with sel_col1: sel_thick = st.selectbox("📏 다리 두께 그룹 선택", ['0', '1', '2'])
-        with sel_col2: sel_width = st.selectbox("↔️ 너비 그룹 선택", ['0', '1', '2'])
+        with sel_col1: sel_thick = st.selectbox("다리 두께 그룹 선택", ['0', '1', '2'])
+        with sel_col2: sel_width = st.selectbox("너비 그룹 선택", ['0', '1', '2'])
             
         common_df = merged_df[(merged_df['cluster_thick'] == sel_thick) & (merged_df['cluster_width'] == sel_width)]
         st.write(f"**두께 그룹 {sel_thick}** 이면서 **너비 그룹 {sel_width}** 인 폰트는 총 **{len(common_df)}**개 입니다.")
@@ -781,7 +781,7 @@ elif menu == "전체 폰트 교집합 (C, G, U, R)":
         merged = pd.merge(merged, rw_sub, on='orig_fname', how='inner')
         
         # UI: 5개의 드롭다운 생성
-        st.subheader("🔍 각 폰트별 조합할 그룹 선택")
+        st.subheader("각 폰트별 조합할 그룹 선택")
         c1, c2, c3, c4, c5 = st.columns(5)
         with c1: sel_c = st.selectbox("C 폰트 그룹", ['0', '1', '2'])
         with c2: sel_g = st.selectbox("G 폰트 그룹", ['0', '1', '2'])

@@ -34,7 +34,6 @@ RAW_HEADERS = {
 
 DATA_ROOT = "data_clustering_v3"
 COLOR_MAP = {'0': '#EF553B', '1': '#636EFA', '2': '#00CC96', '3': '#AB63FA'}
-RESULT_FOLDER = "R_result" # 결과 이미지가 있는 폴더명
 
 # ==========================================
 # 1. 공통 헬퍼 함수 (GitHub 연동)
@@ -174,7 +173,8 @@ def load_data_width(file_path):
 # ==========================================
 # 3. 페이지 렌더링 함수
 # ==========================================
-def render_1d_page(title, df, centroids, x_label, file_path):
+# 폴더명 매개변수(result_folder)를 추가했습니다.
+def render_1d_page(title, df, centroids, x_label, file_path, result_folder):
     if df is None:
         st.error(f"데이터를 찾을 수 없습니다. GitHub 경로('{file_path}')를 확인해주세요.")
         return
@@ -240,14 +240,14 @@ def render_1d_page(title, df, centroids, x_label, file_path):
             actual_crop = selected_filename
             
             orig_img = get_image_from_github("Seg_RGB", orig_fname)
-            crop_img = get_image_from_github(RESULT_FOLDER, actual_crop)
+            crop_img = get_image_from_github(result_folder, actual_crop) # 해당 폴더에서 로드
             
             c1, c2 = st.columns(2)
             if orig_img: c1.image(orig_img, caption="원본", use_container_width=True)
             if crop_img: c2.image(crop_img, caption="결과(크롭)", use_container_width=True)
             st.divider()
             
-        st.markdown(f"**범위 내 데이터 ({len(selected_df)}개)**")
+        st.markdown(f"**범위 내 데이터 카드 ({len(selected_df)}개)**")
         card_container = st.container(height=550)
         
         for idx, row in selected_df.iterrows():
@@ -263,15 +263,15 @@ def render_1d_page(title, df, centroids, x_label, file_path):
                 orig_img = get_image_from_github("Seg_RGB", orig_fname)
                 if orig_img: img_c1.image(orig_img, caption="원본", use_container_width=True)
                 
-                crop_img = get_image_from_github(RESULT_FOLDER, actual_crop)
+                crop_img = get_image_from_github(result_folder, actual_crop) # 해당 폴더에서 로드
                 if crop_img: img_c2.image(crop_img, caption="결과", use_container_width=True)
                 
                 st.caption(f"{x_label}: {row['value']}")
             
     show_front_image_grid(df)
 
-
-def render_2d_page(title, df, centroids, file_path):
+# 폴더명 매개변수(result_folder)를 추가했습니다.
+def render_2d_page(title, df, centroids, file_path, result_folder):
     if df is None:
         st.error(f"데이터를 찾을 수 없습니다. GitHub 경로('{file_path}')를 확인해주세요.")
         return
@@ -331,7 +331,6 @@ def render_2d_page(title, df, centroids, file_path):
             fillcolor="green", opacity=0.15, line=dict(color="#4CAF50", width=2), layer="below"
         )
         
-        # 화면의 좌표계이므로 y축이 반전(위가 0)일 경우를 대비해 설정 (필요시 autorsize=True 옵션 조정)
         fig.update_layout(height=600, margin=dict(l=10, r=10, t=30, b=10),
                           xaxis_title="X 좌표", yaxis_title="Y 좌표", yaxis=dict(autorange="reversed"))
         
@@ -347,7 +346,7 @@ def render_2d_page(title, df, centroids, file_path):
             actual_crop = selected_filename
             
             orig_img = get_image_from_github("Seg_RGB", orig_fname)
-            crop_img = get_image_from_github(RESULT_FOLDER, actual_crop)
+            crop_img = get_image_from_github(result_folder, actual_crop) # 해당 폴더에서 로드
             
             c1, c2 = st.columns(2)
             if orig_img: c1.image(orig_img, caption="원본", use_container_width=True)
@@ -371,7 +370,7 @@ def render_2d_page(title, df, centroids, file_path):
                 orig_img = get_image_from_github("Seg_RGB", orig_fname)
                 if orig_img: img_c1.image(orig_img, caption="원본", use_container_width=True)
                 
-                crop_img = get_image_from_github(RESULT_FOLDER, actual_crop)
+                crop_img = get_image_from_github(result_folder, actual_crop) # 해당 폴더에서 로드
                 if crop_img: img_c2.image(crop_img, caption="결과", use_container_width=True)
                 
                 st.caption(f"좌표: ({row['x_val']}, {row['y_val']})")
@@ -388,19 +387,22 @@ menu = st.sidebar.radio("분석 항목 선택", [
     "width 클러스터링"
 ])
 
-# [중요] 실제 GitHub에 존재하는 txt 파일명으로 아래 파일 경로들을 수정해주세요.
-FILE_PATH_THICKNESS = f"{RESULT_FOLDER}/R_thickness.txt"  
-FILE_PATH_COORD = f"{RESULT_FOLDER}/R_centre.txt"  
-FILE_PATH_WIDTH = f"{RESULT_FOLDER}/R_width.txt"
 
-if menu == "다리 픽셀 두께 클러스터링":
-    df, centroids = load_data_thickness(FILE_PATH_THICKNESS)
-    render_1d_page("R 폰트 다리 픽셀 두께 분석", df, centroids, "두께 (px)", FILE_PATH_THICKNESS)
+# [수정됨] if문에 맞춰 정확한 메뉴 이름과, 폴더 경로를 각각 동적으로 매핑합니다.
+if menu == "다리 stroke 클러스터링":
+    folder_name = "R_result_thickness"
+    file_path = f"{folder_name}/R_thickness.txt"
+    df, centroids = load_data_thickness(file_path)
+    render_1d_page("R 폰트 다리 픽셀 두께 분석", df, centroids, "두께 (px)", file_path, folder_name)
 
-elif menu == "중앙 좌표 클러스터링":
-    df, centroids = load_data_coordinates(FILE_PATH_COORD)
-    render_2d_page("R 폰트 중앙 좌표 분석", df, centroids, FILE_PATH_COORD)
+elif menu == "centre coordinate 클러스터링":
+    folder_name = "R_result_centre"
+    file_path = f"{folder_name}/R_centre.txt"
+    df, centroids = load_data_coordinates(file_path)
+    render_2d_page("R 폰트 중앙 좌표 분석", df, centroids, file_path, folder_name)
 
-elif menu == "너비 클러스터링":
-    df, centroids = load_data_width(FILE_PATH_WIDTH)
-    render_1d_page("R 폰트 너비 분석", df, centroids, "너비 (px)", FILE_PATH_WIDTH)
+elif menu == "width 클러스터링":
+    folder_name = "R_result_width"
+    file_path = f"{folder_name}/R_width.txt"
+    df, centroids = load_data_width(file_path)
+    render_1d_page("R 폰트 너비 분석", df, centroids, "너비 (px)", file_path, folder_name)

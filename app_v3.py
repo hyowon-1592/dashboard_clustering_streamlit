@@ -83,36 +83,36 @@ def get_front_image_from_github(file_name):
         return Image.open(io.BytesIO(response.content))
     return None
 
-def show_front_image_grid(df):
-    """그룹별 전면 사진 모아보기 그리드 렌더링"""
-    st.divider()
-    st.subheader("📦 그룹별 전면 사진 모아보기")
+# def show_front_image_grid(df):
+#     """그룹별 전면 사진 모아보기 그리드 렌더링"""
+#     st.divider()
+#     st.subheader("그룹별 전면 사진 모아보기")
     
-    groups = sorted(df['cluster'].unique())
-    selected_group = st.radio("확인할 그룹을 선택하세요:", groups, horizontal=True)
+#     groups = sorted(df['cluster'].unique())
+#     selected_group = st.radio("확인할 그룹을 선택하세요:", groups, horizontal=True)
     
-    if selected_group:
-        prefixes = df[df['cluster'] == selected_group]['filename'].apply(lambda x: x.split(" ")[0]).unique()
-        front_file_list = get_front_image_list()
+#     if selected_group:
+#         prefixes = df[df['cluster'] == selected_group]['filename'].apply(lambda x: x.split(" ")[0]).unique()
+#         front_file_list = get_front_image_list()
         
-        if not front_file_list:
-            st.warning("GitHub 저장소의 'front_image' 폴더에서 파일 목록을 가져오지 못했습니다.")
-            return
+#         if not front_file_list:
+#             st.warning("GitHub 저장소의 'front_image' 폴더에서 파일 목록을 가져오지 못했습니다.")
+#             return
             
-        cols = st.columns(5)
-        col_idx = 0
+#         cols = st.columns(5)
+#         col_idx = 0
         
-        for prefix in prefixes:
-            matched_file = find_front_image(prefix, front_file_list)
-            if matched_file:
-                img = get_front_image_from_github(matched_file)
-                if img:
-                    with cols[col_idx % 5]:
-                        st.image(img, use_container_width=True, caption=matched_file)
-                    col_idx += 1
+#         for prefix in prefixes:
+#             matched_file = find_front_image(prefix, front_file_list)
+#             if matched_file:
+#                 img = get_front_image_from_github(matched_file)
+#                 if img:
+#                     with cols[col_idx % 5]:
+#                         st.image(img, use_container_width=True, caption=matched_file)
+#                     col_idx += 1
         
-        if col_idx == 0:
-            st.info("해당 그룹의 전면 사진 파일이 없습니다.")
+#         if col_idx == 0:
+#             st.info("해당 그룹의 전면 사진 파일이 없습니다.")
 
 # ==========================================
 # 2. 데이터 처리 (C, G, U, R)
@@ -297,7 +297,7 @@ def show_CG_page(font_name):
                 st.divider()
                 
             # 🔥 지연 렌더링(Expander) 적용
-            with st.expander(f"📦 범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
+            with st.expander(f"범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
                 card_container = st.container(height=550)
                 for idx, row in selected_df.iterrows():
                     bg_color = COLOR_MAP.get(row['cluster'], '#555')
@@ -317,7 +317,7 @@ def show_CG_page(font_name):
                         
                         st.caption(f"상단: {row['top_ratio']:.2f} | 하단: {row['bottom_ratio']:.2f}")
 
-        show_front_image_grid(df)
+        # show_front_image_grid(df)
     else:
         st.error("데이터를 찾을 수 없습니다.")
 
@@ -389,7 +389,7 @@ def show_U_page():
                 if crop_img: c2.image(crop_img, caption="결과(크롭)", use_container_width=True)
                 st.divider()
                 
-            with st.expander(f"📦 범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
+            with st.expander(f"범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
                 card_container = st.container(height=550)
                 for idx, row in selected_df.iterrows():
                     bg_color = COLOR_MAP.get(row['cluster'], '#555')
@@ -411,7 +411,7 @@ def show_U_page():
                         
                         st.caption(f"X (비율): {row['ratio']:.2f} | Y (분산): {row['jitter']:.2f}")
 
-        show_front_image_grid(df)
+        # show_front_image_grid(df)
     else:
         st.error("데이터를 찾을 수 없습니다.")
 
@@ -483,7 +483,7 @@ def render_1d_page(title, df, centroids, x_label, file_path, result_folder, suff
             if crop_img: c2.image(crop_img, caption="결과(크롭)", use_container_width=True)
             st.divider()
             
-        with st.expander(f"📦 범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
+        with st.expander(f"범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
             card_container = st.container(height=550)
             for idx, row in selected_df.iterrows():
                 bg_color = COLOR_MAP.get(row['cluster'], '#555')
@@ -503,7 +503,7 @@ def render_1d_page(title, df, centroids, x_label, file_path, result_folder, suff
                     
                     st.caption(f"{x_label}: {row['value']}")
 
-    show_front_image_grid(df)
+    # show_front_image_grid(df)
 
 def render_2d_page(title, df, centroids, file_path, result_folder, suffix=""):
     if df is None:
@@ -580,7 +580,7 @@ def render_2d_page(title, df, centroids, file_path, result_folder, suffix=""):
             if crop_img: c2.image(crop_img, caption="결과(크롭)", use_container_width=True)
             st.divider()
             
-        with st.expander(f"📦 범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
+        with st.expander(f"범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
             card_container = st.container(height=550)
             for idx, row in selected_df.iterrows():
                 bg_color = COLOR_MAP.get(row['cluster'], '#555')
@@ -600,7 +600,7 @@ def render_2d_page(title, df, centroids, file_path, result_folder, suffix=""):
                     
                     st.caption(f"좌표: ({row['x_val']}, {row['y_val']})")
 
-    show_front_image_grid(df)
+    # show_front_image_grid(df)
 
 
 # ==========================================

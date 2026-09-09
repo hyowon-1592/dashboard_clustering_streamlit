@@ -81,7 +81,7 @@ def get_front_image_from_github(file_name):
 
 # def show_front_image_grid(df):
 #     st.divider()
-#     st.subheader("📦 그룹별 전면 사진 모아보기")
+#     st.subheader("그룹별 전면 사진 모아보기")
     
 #     groups = sorted(df['cluster'].unique())
 #     selected_group = st.radio("확인할 그룹을 선택하세요:", groups, horizontal=True)

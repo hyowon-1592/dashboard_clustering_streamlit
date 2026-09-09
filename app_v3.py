@@ -79,24 +79,25 @@ def get_front_image_from_github(file_name):
         return Image.open(io.BytesIO(response.content))
     return None
 
+# 하단 전면 사진 모아보기 기능 주석 처리
 # def show_front_image_grid(df):
 #     st.divider()
 #     st.subheader("그룹별 전면 사진 모아보기")
-    
+#     
 #     groups = sorted(df['cluster'].unique())
 #     selected_group = st.radio("확인할 그룹을 선택하세요:", groups, horizontal=True)
-    
+#     
 #     if selected_group:
 #         prefixes = df[df['cluster'] == selected_group]['filename'].apply(lambda x: x.split(" ")[0]).unique()
 #         front_file_list = get_front_image_list()
-        
+#         
 #         if not front_file_list:
 #             st.warning("GitHub 저장소의 'front_image' 폴더에서 파일 목록을 가져오지 못했습니다.")
 #             return
-            
+#             
 #         cols = st.columns(5)
 #         col_idx = 0
-        
+#         
 #         for prefix in prefixes:
 #             matched_file = find_front_image(prefix, front_file_list)
 #             if matched_file:
@@ -105,7 +106,7 @@ def get_front_image_from_github(file_name):
 #                     with cols[col_idx % 5]:
 #                         st.image(img, use_container_width=True, caption=matched_file)
 #                     col_idx += 1
-        
+#         
 #         if col_idx == 0:
 #             st.info("해당 그룹의 전면 사진 파일이 없습니다.")
 
@@ -271,7 +272,7 @@ def render_1d_page(title, df, centroids, x_label, file_path, result_folder, suff
                 
                 st.caption(f"{x_label}: {row['value']}")
             
-    show_front_image_grid(df)
+    # show_front_image_grid(df)  # <--- 호출 부분 주석 처리 완료
 
 
 def render_2d_page(title, df, centroids, file_path, result_folder, suffix=""):
@@ -382,7 +383,7 @@ def render_2d_page(title, df, centroids, file_path, result_folder, suffix=""):
                 
                 st.caption(f"좌표: ({row['x_val']}, {row['y_val']})")
             
-    show_front_image_grid(df)
+    # show_front_image_grid(df) # <--- 호출 부분 주석 처리 완료
 
 # ==========================================
 # 4. 메인 네비게이션

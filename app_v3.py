@@ -581,6 +581,13 @@ def render_2d_page(title, df, centroids, file_path, result_folder, suffix=""):
 
 
 
+
+
+
+
+
+
+
 # ==========================================
 # 4. 통합 네비게이션 및 메뉴 라우팅
 # ==========================================
@@ -633,9 +640,9 @@ elif menu == "C, G, U 공통 그룹 찾기":
     st.title("C, G, U 폰트 클러스터 교집합 분석")
     st.markdown("C, G, U 폰트 각각의 군집(그룹) 조합을 선택하여 **세 알파벳 모두 지정한 특성 그룹에 속하는 폰트**를 찾습니다.")
     
-    df_c, _ = load_data_2D(os.path.join("C_result", "C_basic_analysis.txt"))
-    df_g, _ = load_data_2D(os.path.join("G_result", "G_basic_analysis.txt"))
-    df_u, _ = load_data_U(os.path.join("U_result", "U_basic_analysis.txt"))
+    df_c, _ = load_data_2D("C_result/C_basic_analysis.txt")
+    df_g, _ = load_data_2D("G_result/G_basic_analysis.txt")
+    df_u, _ = load_data_U("U_result/U_basic_analysis.txt")
     
     if all(d is not None for d in [df_c, df_g, df_u]):
         for d in [df_c, df_g, df_u]:
@@ -651,7 +658,7 @@ elif menu == "C, G, U 공통 그룹 찾기":
                           df_g_clean[['orig_fname', 'cluster_G', 'top_G', 'bottom_G']], on='orig_fname')
         merged_df = pd.merge(merge1, df_u_clean[['orig_fname', 'cluster_U', 'ratio_U']], on='orig_fname')
         
-        st.subheader("조합할 그룹 선택")
+        st.subheader("🔍 조합할 그룹 선택")
         col1, col2, col3 = st.columns(3)
         with col1: sel_c = st.selectbox("C 폰트 그룹", ['0', '1', '2'])
         with col2: sel_g = st.selectbox("G 폰트 그룹", ['0', '1', '2'])
@@ -666,7 +673,7 @@ elif menu == "C, G, U 공통 그룹 찾기":
                 cols = st.columns(5)
                 col_idx = 0
                 for _, row in common_df.iterrows():
-                    img = get_image_from_local("Seg_RGB", row['orig_fname'])
+                    img = get_image_from_github("Seg_RGB", row['orig_fname'])
                     if img:
                         with cols[col_idx % 5]:
                             st.image(img, caption=row['orig_fname'].split(' ')[0], use_container_width=True)
@@ -676,19 +683,19 @@ elif menu == "C, G, U 공통 그룹 찾기":
 # [R 파트 처리]
 elif menu == "R 다리 stroke 클러스터링":
     folder_name = "R_result_thickness"
-    file_path = os.path.join(folder_name, "R_thickness.txt")
+    file_path = f"{folder_name}/R_thickness.txt"
     df, centroids = load_data_thickness(file_path)
     render_1d_page("R 폰트 다리 픽셀 두께 분석", df, centroids, "두께 (px)", file_path, folder_name, suffix="_thickness")
 
 elif menu == "R centre coordinate 클러스터링":
     folder_name = "R_result_centre"
-    file_path = os.path.join(folder_name, "R_centre.txt")
+    file_path = f"{folder_name}/R_centre.txt"
     df, centroids = load_data_coordinates(file_path)
     render_2d_page("R 폰트 중앙 좌표 분석", df, centroids, file_path, folder_name, suffix="_centre")
 
 elif menu == "R width 클러스터링":
     folder_name = "R_result_width"
-    file_path = os.path.join(folder_name, "R_width.txt")
+    file_path = f"{folder_name}/R_width.txt"
     df, centroids = load_data_width(file_path)
     render_1d_page("R 폰트 너비 분석", df, centroids, "너비 (px)", file_path, folder_name, suffix="_width")
 
@@ -696,8 +703,8 @@ elif menu == "R 두께 & 너비 공통 그룹 찾기":
     st.title("R 폰트 다리 두께 & 너비 교집합 분석")
     st.markdown("K-Means 그룹은 번호가 무작위이므로, 아래 분포표를 확인하고 원하는 조합을 직접 선택해보세요!")
     
-    df_thick, _ = load_data_thickness(os.path.join("R_result_thickness", "R_thickness.txt"))
-    df_width, _ = load_data_width(os.path.join("R_result_width", "R_width.txt"))
+    df_thick, _ = load_data_thickness("R_result_thickness/R_thickness.txt")
+    df_width, _ = load_data_width("R_result_width/R_width.txt")
     
     if df_thick is not None and df_width is not None:
         # 🔥 중복 데이터 제거 (R 내부 병합 시 중복 증식 방지)
@@ -710,17 +717,17 @@ elif menu == "R 두께 & 너비 공통 그룹 찾기":
             on='filename'
         )
         
-        st.subheader("전체 교집합 분포 현황")
+        st.subheader("📊 전체 교집합 분포 현황")
         cross_tab = pd.crosstab(merged_df['cluster_thick'], merged_df['cluster_width'])
         cross_tab.index.name = "두께 그룹 (행)"
         cross_tab.columns.name = "너비 그룹 (열)"
         st.dataframe(cross_tab, use_container_width=True)
         st.divider()
         
-        st.subheader("특정 그룹 조합 이미지 확인")
+        st.subheader("🔍 특정 그룹 조합 이미지 확인")
         sel_col1, sel_col2 = st.columns(2)
-        with sel_col1: sel_thick = st.selectbox("다리 두께 그룹 선택", ['0', '1', '2'])
-        with sel_col2: sel_width = st.selectbox("↔너비 그룹 선택", ['0', '1', '2'])
+        with sel_col1: sel_thick = st.selectbox("📏 다리 두께 그룹 선택", ['0', '1', '2'])
+        with sel_col2: sel_width = st.selectbox("↔️ 너비 그룹 선택", ['0', '1', '2'])
             
         common_df = merged_df[(merged_df['cluster_thick'] == sel_thick) & (merged_df['cluster_width'] == sel_width)]
         st.write(f"**두께 그룹 {sel_thick}** 이면서 **너비 그룹 {sel_width}** 인 폰트는 총 **{len(common_df)}**개 입니다.")
@@ -732,7 +739,7 @@ elif menu == "R 두께 & 너비 공통 그룹 찾기":
                 col_idx = 0
                 for _, row in common_df.iterrows():
                     orig_fname = row['filename'].split('_crop')[0] + '_crop' if '_crop' in row['filename'] else row['filename']
-                    img = get_image_from_local("Seg_RGB", orig_fname)
+                    img = get_image_from_github("Seg_RGB", orig_fname)
                     if img:
                         with cols[col_idx % 5]:
                             st.image(img, caption=f"{orig_fname.split(' ')[0]}\n({row['thick_val']}px, {row['width_val']}px)", use_container_width=True)
@@ -746,18 +753,18 @@ elif menu == "전체 폰트 교집합 (C, G, U, R)":
     st.markdown("모든 알파벳(C, G, U, R 두께, R 너비)의 특정 군집 조건을 **모두 만족하는 폰트**를 한 번에 필터링합니다.")
     
     # 5가지 데이터 모두 불러오기
-    df_c, _ = load_data_2D(os.path.join("C_result", "C_basic_analysis.txt"))
-    df_g, _ = load_data_2D(os.path.join("G_result", "G_basic_analysis.txt"))
-    df_u, _ = load_data_U(os.path.join("U_result", "U_basic_analysis.txt"))
-    df_r_thick, _ = load_data_thickness(os.path.join("R_result_thickness", "R_thickness.txt"))
-    df_r_width, _ = load_data_width(os.path.join("R_result_width", "R_width.txt"))
+    df_c, _ = load_data_2D("C_result/C_basic_analysis.txt")
+    df_g, _ = load_data_2D("G_result/G_basic_analysis.txt")
+    df_u, _ = load_data_U("U_result/U_basic_analysis.txt")
+    df_r_thick, _ = load_data_thickness("R_result_thickness/R_thickness.txt")
+    df_r_width, _ = load_data_width("R_result_width/R_width.txt")
     
     if all(d is not None for d in [df_c, df_g, df_u, df_r_thick, df_r_width]):
         
         # 파일명을 통일 (KAI000000 (0)_crop)하여 원활한 병합(Merge) 진행
         for d in [df_c, df_g, df_u, df_r_thick, df_r_width]:
             d['orig_fname'] = d['filename'].apply(lambda x: x.split('_crop')[0] + '_crop' if '_crop' in x else x)
-            # 중복 데이터 제거 (최종 교집합 병합 시 중복 증식 완벽 차단)
+            # 🔥 중복 데이터 제거 (최종 교집합 병합 시 중복 증식 완벽 차단)
             d.drop_duplicates(subset=['orig_fname'], keep='first', inplace=True)
         
         # 이름 간소화 및 병합
@@ -798,7 +805,7 @@ elif menu == "전체 폰트 교집합 (C, G, U, R)":
                 cols = st.columns(5)
                 col_idx = 0
                 for _, row in final_df.iterrows():
-                    img = get_image_from_local("Seg_RGB", row['orig_fname'])
+                    img = get_image_from_github("Seg_RGB", row['orig_fname'])
                     if img:
                         with cols[col_idx % 5]:
                             st.image(img, caption=row['orig_fname'].split(' ')[0], use_container_width=True)

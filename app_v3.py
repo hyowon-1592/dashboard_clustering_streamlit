@@ -651,8 +651,8 @@ st.sidebar.markdown("<br><b>--- [R 폰트 분석] ---</b>", unsafe_allow_html=Tr
 nav_button("R 다리 stroke 클러스터링")
 nav_button("R centre coordinate 클러스터링")
 nav_button("R width 클러스터링")
-nav_button("R 틈새 거리 클러스터링")
-nav_button("R 특성 공통 그룹 찾기")
+nav_button("R 유격 거리 클러스터링")
+nav_button("R 공통 그룹 찾기")
 
 st.sidebar.markdown("<br><b>--- [최종 분석] ---</b>", unsafe_allow_html=True)
 nav_button("전체 폰트 교집합 (C, G, U, R)")
@@ -689,7 +689,7 @@ elif menu == "C, G, U 공통 그룹 찾기":
                           df_g_clean[['orig_fname', 'cluster_G', 'top_G', 'bottom_G']], on='orig_fname')
         merged_df = pd.merge(merge1, df_u_clean[['orig_fname', 'cluster_U', 'ratio_U']], on='orig_fname')
         
-        st.subheader("🔍 조합할 그룹 선택")
+        st.subheader("조합할 그룹 선택")
         col1, col2, col3 = st.columns(3)
         with col1: sel_c = st.selectbox("C 폰트 그룹", ['0', '1', '2'])
         with col2: sel_g = st.selectbox("G 폰트 그룹", ['0', '1', '2'])
@@ -734,15 +734,15 @@ elif menu == "R width 클러스터링":
     df, centroids = load_data_width(file_path)
     render_1d_page("R 폰트 너비 분석", df, centroids, "너비 (px)", file_path, folder_name, suffix="_width")
 
-elif menu == "R 틈새 거리 클러스터링":
+elif menu == "R 유격 거리 클러스터링":
     folder_name = "R_result"
     file_path = f"{folder_name}/R_analysis.txt"
     df, centroids = load_data_r_gap(file_path)
     # 틈새 분석 이미지는 별도의 접미사가 명시되지 않았으므로 ""를 사용
-    render_1d_page("R 폰트 틈새 거리 분석", df, centroids, "틈새 거리 (px)", file_path, folder_name, suffix="")
+    render_1d_page("R 폰트 유격 거리 분석", df, centroids, "유격 거리 (px)", file_path, folder_name, suffix="")
 
-elif menu == "R 특성 공통 그룹 찾기":
-    st.title("R 폰트 특성 교집합 분석 (두께, 너비, 틈새)")
+elif menu == "R 공통 그룹 찾기":
+    st.title("R 폰트 특성 교집합 분석 (두께, 너비, 유격)")
     st.markdown("K-Means 그룹은 번호가 무작위이므로, 아래 분포표를 확인하고 원하는 조합을 직접 선택해보세요!")
     
     df_thick, _ = load_data_thickness("R_result_thickness/R_thickness.txt")

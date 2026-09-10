@@ -159,7 +159,7 @@ def load_data_r_gap(file_path):
     blocks = text_data.split("---------------------------------------------")
     for block in blocks:
         fname_match = re.search(r"파일명:\s*(.+)", block)
-        gap_match = re.search(r"▶ 비율(거리/너비):\s*([\d\.]+)\s", block)
+        gap_match = re.search(r"▶ 비율\(거리/너비\):\s*([\d\.]+)", block)
         if fname_match and gap_match:
             fname = fname_match.group(1).strip()
             gap_val = float(gap_match.group(1))

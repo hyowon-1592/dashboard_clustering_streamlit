@@ -739,7 +739,7 @@ elif menu == "R 유격 거리 클러스터링":
     file_path = f"{folder_name}/R_analysis.txt"
     df, centroids = load_data_r_gap(file_path)
     # 틈새 분석 이미지는 별도의 접미사가 명시되지 않았으므로 ""를 사용
-    render_1d_page("R 폰트 유격 거리 분석", df, centroids, "유격 거리 (px)", file_path, folder_name, suffix="_leg")
+    render_1d_page("R 폰트 유격 거리 분석", df, centroids, "유격 거리 (px)", file_path, folder_name, suffix="_R_leg")
 
 elif menu == "R 공통 그룹 찾기":
     st.title("R 폰트 특성 교집합 분석 (두께, 너비, 유격)")

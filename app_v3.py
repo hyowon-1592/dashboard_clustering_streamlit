@@ -611,7 +611,7 @@ elif menu == "전체 폰트 교집합 (C, G, U, R)":
     df_c, _ = load_data_2D("C_result/C_basic_analysis.txt")
     df_g, _ = load_data_2D("G_result/G_basic_analysis.txt")
     df_u, _ = load_data_U("U_result/U_basic_analysis.txt")
-    df_r_loc, _ = load_data_location("R_result_lcoation/R_location.txt")
+    df_r_loc, _ = load_data_location("R_result_location/R_location.txt")
     df_r_gap, _ = load_data_r_gap("R_result/R_analysis.txt")
     
     if all(d is not None for d in [df_c, df_g, df_u, df_r_loc, df_r_gap]):

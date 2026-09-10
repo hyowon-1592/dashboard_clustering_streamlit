@@ -581,7 +581,7 @@ elif menu == "R 공통 그룹 찾기":
         with sel_col2: sel_gap = st.selectbox("유격 그룹 선택", ['0', '1', '2'])
             
         common_df = merged_df[(merged_df['cluster_loc'] == sel_loc) & (merged_df['cluster_gap'] == sel_gap)]
-        st.write(f"**Location {sel_loc} & 유격 {sel_gap}** 조합의 폰트는 총 **{len(common_df)}**개 입니다.")
+        st.write(f"**중심 좌표-다리 시작점 거리 {sel_loc} & 유격 {sel_gap}** 조합의 폰트는 총 **{len(common_df)}**개 입니다.")
         
         if not common_df.empty:
             st.dataframe(common_df[['filename', 'loc_val', 'gap_val']], use_container_width=True)

@@ -136,7 +136,7 @@ def load_data_location(file_path):
     if not text_data: return None, None
     
     data_list = []
-    pattern = re.compile(r"\[(.*?)\]\s*너비:\s*[\d\.]+,\s*측정 차이:\s*[\d\.]+,\s*비율(차이/너비):\s*([\d\.]+)")
+    pattern = re.compile(r"\[(.*?)\].*?비율\(차이/너비\):\s*([\d\.]+)")
     for line in text_data.split('\n'):
         match = pattern.search(line.strip())
         if match:
@@ -159,7 +159,7 @@ def load_data_r_gap(file_path):
     blocks = text_data.split("---------------------------------------------")
     for block in blocks:
         fname_match = re.search(r"파일명:\s*(.+)", block)
-        gap_match = re.search(r"▶ 비율(거리/너비):\s*([\d\.]+)\s*px", block)
+        gap_match = re.search(r"▶ 비율(거리/너비):\s*([\d\.]+)\s", block)
         if fname_match and gap_match:
             fname = fname_match.group(1).strip()
             gap_val = float(gap_match.group(1))

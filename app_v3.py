@@ -555,7 +555,7 @@ elif menu == "R 유격 거리 클러스터링":
     render_1d_page("R 폰트 유격 거리 분석", df, centroids, "유격 거리 (px)", file_path, folder_name, suffix="_R_leg")
 
 elif menu == "R 공통 그룹 찾기":
-    st.title("R 폰트 특성 교집합 분석 (증심과의 거, 유격)")
+    st.title("R 폰트 특성 교집합 분석 (증심과의 거리, 유격)")
     
     df_loc, _ = load_data_location("R_result_location/R_location.txt")
     df_gap, _ = load_data_r_gap("R_result/R_analysis.txt")
@@ -581,7 +581,7 @@ elif menu == "R 공통 그룹 찾기":
         with sel_col2: sel_gap = st.selectbox("유격 그룹 선택", ['0', '1', '2'])
             
         common_df = merged_df[(merged_df['cluster_loc'] == sel_loc) & (merged_df['cluster_gap'] == sel_gap)]
-        st.write(f"**중심 좌표-다리 시작점 거리 {sel_loc} & 유격 {sel_gap}** 조합의 폰트는 총 **{len(common_df)}**개 입니다.")
+        st.write(f"**중심과의 거리 {sel_loc} & 유격 {sel_gap}** 조합의 폰트는 총 **{len(common_df)}**개 입니다.")
         
         if not common_df.empty:
             st.dataframe(common_df[['filename', 'loc_val', 'gap_val']], use_container_width=True)

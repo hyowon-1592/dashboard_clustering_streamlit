@@ -137,7 +137,7 @@ def load_data_location(file_path):
     
     data_list = []
     # pattern = re.compile(r"\[(.*?)\]\s*중심 x:\s*[\d\.]+,\s*빨간점 x:\s*[\d\.]+,\s*x 차이:\s*([\d\.]+)")
-    pattern = re.compile(r"\[(.*?)\].*?측정 차이:\s*([\d\.]+)px\[(.*?)\].*?")
+    pattern = re.compile(r"\[(.*?)\].*?측정 차이:\s*([\d\.]+)px")
     for line in text_data.split('\n'):
         match = pattern.search(line.strip())
         if match:

@@ -546,13 +546,13 @@ elif menu == "R 다리 시작점과 중심 좌표의 거리 클러스터링":
     folder_name = "R_result_location"
     file_path = f"{folder_name}/R_location.txt"
     df, centroids = load_data_location(file_path)
-    render_1d_page("R 폰트 중심 좌표 - 갈라짐 x 차이 클러스터링", df, centroids, "x 차이 (px)", file_path, folder_name, suffix="_location")
+    render_1d_page("R 폰트 중심 좌표 - 갈라짐 x 차이 클러스터링", df, centroids, "x 거리 비율", file_path, folder_name, suffix="_location")
 
 elif menu == "R 유격 거리 클러스터링":
     folder_name = "R_result"
     file_path = f"{folder_name}/R_analysis.txt"
     df, centroids = load_data_r_gap(file_path)
-    render_1d_page("R 폰트 유격 거리 분석", df, centroids, "유격 거리 (px)", file_path, folder_name, suffix="_R_leg")
+    render_1d_page("R 폰트 유격 거리 분석", df, centroids, "유격 거리 비율", file_path, folder_name, suffix="_R_leg")
 
 elif menu == "R 공통 그룹 찾기":
     st.title("R 폰트 특성 교집합 분석 (증심과의 거리, 유격)")
@@ -577,7 +577,7 @@ elif menu == "R 공통 그룹 찾기":
         
         st.subheader("특정 그룹 조합 이미지 확인")
         sel_col1, sel_col2 = st.columns(2)
-        with sel_col1: sel_loc = st.selectbox("중심과의 거리 (x 차이) 그룹 선택", ['0', '1', '2'])
+        with sel_col1: sel_loc = st.selectbox("중심과의 거리 (x 거리 비율) 그룹 선택", ['0', '1', '2'])
         with sel_col2: sel_gap = st.selectbox("유격 그룹 선택", ['0', '1', '2'])
             
         common_df = merged_df[(merged_df['cluster_loc'] == sel_loc) & (merged_df['cluster_gap'] == sel_gap)]

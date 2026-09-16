@@ -148,27 +148,27 @@ def render_metric_page(metric_name, metric_desc, df):
 
         min_val, max_val = float(sub_df['value'].min()), float(sub_df['value'].max())
         
+        # 1. 데이터에 존재하는 최대 소수점 자리수 계산
+        # 숫자를 문자열로 바꾸고 '.' 뒷부분의 길이를 구해 최댓값을 찾습니다.
+        max_decimals = sub_df['value'].astype(str).apply(lambda x: len(x.split('.')[1]) if '.' in x else 0).max()
+        
+        # 파이썬 특성상 생기는 미세한 부동소수점 오차 방지를 위해 최대 6자리로 제한을 둡니다.
+        max_decimals = min(max_decimals, 6)
+        
         val_range = max_val - min_val
-        step_size = val_range / 100.0 if val_range > 0 else 0.001
-
-        if val_range > 0:
-            selected_range = st.slider(
-                f"{metric_name} 수치 범위 선택", 
-                min_value=min_val, 
-                max_value=max_val, 
-                value=(min_val, max_val),
-                step=step_size,
-                format="%.3f" # 소수점 6자리까지 표시하여 미세한 값도 UI에서 확인 가능하도록 설정
-            )
-        else:
-            selected_range = st.slider(
-                f"{metric_name} 수치 범위 선택", 
-                min_value=min_val, 
-                max_value=max_val, 
-                value=(min_val, max_val),
-                step=step_size,
-                format="%.6f" # 소수점 6자리까지 표시하여 미세한 값도 UI에서 확인 가능하도록 설정
-            )
+        
+        # 2. step_size 및 format 동적 설정
+        min_step = 1 / (10 ** max_decimals)
+        step_size = val_range / 100.0 if val_range > 0 else min_step
+        
+        selected_range = st.slider(
+            f"{metric_name} 수치 범위 선택", 
+            min_value=min_val, 
+            max_value=max_val, 
+            value=(min_val, max_val),
+            step=step_size,
+            format=f"%.{max_decimals}f"  # 데이터의 소수점 자리수(예: 3 또는 6)에 맞춰 유동적으로 적용됨
+        )
         
         mask = (sub_df['value'] >= selected_range[0]) & (sub_df['value'] <= selected_range[1])
         sub_df['is_selected'] = mask

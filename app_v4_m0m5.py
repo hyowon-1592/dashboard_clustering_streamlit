@@ -150,15 +150,25 @@ def render_metric_page(metric_name, metric_desc, df):
         
         val_range = max_val - min_val
         step_size = val_range / 100.0 if val_range > 0 else 0.001
-        
-        selected_range = st.slider(
-            f"{metric_name} 수치 범위 선택", 
-            min_value=min_val, 
-            max_value=max_val, 
-            value=(min_val, max_val),
-            step=step_size,
-            format="%.6f" # 소수점 6자리까지 표시하여 미세한 값도 UI에서 확인 가능하도록 설정
-        )
+
+        if val_range > 0:
+            selected_range = st.slider(
+                f"{metric_name} 수치 범위 선택", 
+                min_value=min_val, 
+                max_value=max_val, 
+                value=(min_val, max_val),
+                step=step_size,
+                format="%.3f" # 소수점 6자리까지 표시하여 미세한 값도 UI에서 확인 가능하도록 설정
+            )
+        else:
+            selected_range = st.slider(
+                f"{metric_name} 수치 범위 선택", 
+                min_value=min_val, 
+                max_value=max_val, 
+                value=(min_val, max_val),
+                step=step_size,
+                format="%.6f" # 소수점 6자리까지 표시하여 미세한 값도 UI에서 확인 가능하도록 설정
+            )
         
         mask = (sub_df['value'] >= selected_range[0]) & (sub_df['value'] <= selected_range[1])
         sub_df['is_selected'] = mask
@@ -288,7 +298,6 @@ for m_key in MENUS:
     btn_type = "primary" if st.session_state.menu == m_key else "secondary"
     st.sidebar.button(f"{m_key} 지표 분석", type=btn_type, use_container_width=True, on_click=change_menu, args=(m_key,))
 
-# 윈도우 환경 호환성 및 URL 규칙을 위해 os.path.join 대신 슬래시(/) 문자열로 직접 지정
 file_path = "R_result/M0_M5_Analysis.txt"
 df = load_and_parse_m_metrics(file_path)
 

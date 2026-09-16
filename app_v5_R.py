@@ -134,7 +134,7 @@ def show_front_image_list(df):
     with col2:
         if available_files:
             # 사용자가 표를 보고 보고싶은 폰트를 선택
-            selected_font = st.selectbox("👀 전면 사진 확인하기 (폰트 선택)", list(available_files.keys()))
+            selected_font = st.selectbox("전면 사진 확인하기 (해당 감정번호 선택 시 전면 사진 확인 가능)", list(available_files.keys()))
             if selected_font:
                 img_file = available_files[selected_font]
                 with st.spinner("이미지 불러오는 중..."):

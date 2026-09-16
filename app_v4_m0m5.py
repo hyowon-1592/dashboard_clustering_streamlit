@@ -144,8 +144,24 @@ def render_metric_page(metric_name, metric_desc, df):
         sub_df['jitter'] = np.random.uniform(-0.5, 0.5, size=len(sub_df))
 
         # 범위 선택 슬라이더
+        # min_val, max_val = float(sub_df['value'].min()), float(sub_df['value'].max())
+        # selected_range = st.slider(f"{metric_name} 수치 범위 선택", min_val, max_val, (min_val, max_val))
+
+        # (기존 코드 위치: 범위 선택 슬라이더 부분)
         min_val, max_val = float(sub_df['value'].min()), float(sub_df['value'].max())
-        selected_range = st.slider(f"{metric_name} 수치 범위 선택", min_val, max_val, (min_val, max_val))
+        
+        # [수정된 부분] M3처럼 값의 범위가 매우 작은 경우를 위해 step과 format 동적 설정
+        val_range = max_val - min_val
+        step_size = val_range / 100.0 if val_range > 0 else 0.001
+        
+        selected_range = st.slider(
+            f"{metric_name} 수치 범위 선택", 
+            min_value=min_val, 
+            max_value=max_val, 
+            value=(min_val, max_val),
+            step=step_size,
+            format="%.6f" # 소수점 6자리까지 표시하여 미세한 값도 UI에서 확인 가능하도록 설정
+        )
         
         mask = (sub_df['value'] >= selected_range[0]) & (sub_df['value'] <= selected_range[1])
         sub_df['is_selected'] = mask

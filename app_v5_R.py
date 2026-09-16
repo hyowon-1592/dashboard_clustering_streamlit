@@ -94,7 +94,59 @@ def find_front_image(prefix, file_list):
         if file_name.startswith(prefix) and (file_name.endswith('.jpg') or file_name.endswith('.JPG')):
             return file_name
     return None
-
+def show_front_image_list(df):
+    """현재 필터링된 데이터의 전면 사진 목록 표 및 개별 확인"""
+    st.divider()
+    st.subheader("현재 화면의 전면 사진 목록")
+    
+    if df.empty:
+        st.info("선택된 데이터가 없습니다.")
+        return
+        
+    # 선택된 데이터의 폰트명(앞부분) 추출
+    prefixes = sorted(df['filename'].apply(lambda x: x.split(" ")[0]).unique())
+    front_file_list = get_front_image_list()
+    
+    if not front_file_list:
+        st.warning("깃허브의 'front_image' 폴더에서 파일 목록을 가져오지 못했습니다.")
+        return
+        
+    # 표 데이터 생성
+    table_data = []
+    available_files = {} # 드롭다운 선택용 딕셔너리
+    
+    for prefix in prefixes:
+        matched_file = find_front_image(prefix, front_file_list)
+        if matched_file:
+            table_data.append({"폰트명": prefix, "전면 사진 파일명": matched_file, "상태": "확인 가능"})
+            available_files[prefix] = matched_file
+        else:
+            table_data.append({"폰트명": prefix, "전면 사진 파일명": "-", "상태": "파일 없음"})
+            
+    res_df = pd.DataFrame(table_data)
+    
+    # 레이아웃 분할: 왼쪽은 표, 오른쪽은 선택한 이미지 표시
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.dataframe(res_df, use_container_width=True, hide_index=True)
+        
+    with col2:
+        if available_files:
+            # 사용자가 표를 보고 보고싶은 폰트를 선택
+            selected_font = st.selectbox("👀 전면 사진 확인하기 (폰트 선택)", list(available_files.keys()))
+            if selected_font:
+                img_file = available_files[selected_font]
+                with st.spinner("이미지 불러오는 중..."):
+                    img = get_front_image_from_github(img_file)
+                
+                if img:
+                    st.image(img, caption=f"[{selected_font}] {img_file}", use_container_width=True)
+                else:
+                    st.error("이미지를 불러오지 못했습니다.")
+        else:
+            st.info("현재 목록에 확인할 수 있는 전면 사진이 없습니다.")
+            
 @st.cache_data(show_spinner=False, max_entries=50)
 def get_front_image_from_github(file_name):
     """전면 이미지를 GitHub에서 직접 가져오기"""
@@ -288,11 +340,9 @@ def render_1d_page(title, df, x_label, file_path, result_folder, suffix=""):
                     st.caption(format_str.format(row['value']))
                     
     # show_front_image_grid(selected_df)
+    show_front_image_list(selected_df)
 
 
-# ==========================================
-# 4. 통합 네비게이션 및 메뉴 라우팅
-# ==========================================
 st.sidebar.title("R 폰트 분석 필터링")
 
 if "menu" not in st.session_state:

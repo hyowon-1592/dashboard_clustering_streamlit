@@ -287,7 +287,7 @@ def render_1d_page(title, df, x_label, file_path, result_folder, suffix=""):
                     format_str = f"{x_label}: {{:.{max_decimals}f}}"
                     st.caption(format_str.format(row['value']))
                     
-    show_front_image_grid(selected_df)
+    # show_front_image_grid(selected_df)
 
 
 # ==========================================

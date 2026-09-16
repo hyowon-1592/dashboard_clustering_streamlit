@@ -14,11 +14,10 @@ st.set_page_config(page_title="M0~M5 대시보드", layout="wide")
 COLOR_MAP = {'0': '#EF553B', '1': '#636EFA', '2': '#00CC96', '3': '#AB63FA', '4': '#FFA15A'}
 DEFAULT_COLOR = '#636EFA' # 클러스터링 안 할 때 쓸 기본 색상
 
-# Streamlit Secrets에서 GitHub 정보 가져오기
 try:
     GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
-    REPO_OWNER = st.secrets["REPO_OWNER"] # 깃허브 아이디 (예: hyowon-1592)
-    REPO_NAME = st.secrets["REPO_NAME"]   # 레포지토리 이름 (예: dashboard_clustering)
+    REPO_OWNER = st.secrets["REPO_OWNER"]
+    REPO_NAME = st.secrets["REPO_NAME"]
     BRANCH = st.secrets.get("BRANCH", "main")
 except KeyError:
     st.error("Streamlit Secrets 설정이 누락되었습니다. 깃허브 토큰과 레포지토리 정보를 설정해주세요.")

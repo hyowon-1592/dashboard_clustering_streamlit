@@ -272,14 +272,14 @@ def render_metric_page(metric_name, metric_desc, df):
 # ==========================================
 st.sidebar.title("M0~M5 분석 대시보드")
 
-MENUS = {
+MENUS = [
     "M0",
     "M1",
     "M2",
     "M3",
     "M4",
     "M5"
-}
+]
 
 if "menu" not in st.session_state:
     st.session_state.menu = "M0"
@@ -287,7 +287,7 @@ if "menu" not in st.session_state:
 def change_menu(new_menu):
     st.session_state.menu = new_menu
 
-for m_key in MENUS.keys():
+for m_key in MENUS:
     btn_type = "primary" if st.session_state.menu == m_key else "secondary"
     st.sidebar.button(f"{m_key} 지표 분석", type=btn_type, use_container_width=True, on_click=change_menu, args=(m_key,))
 

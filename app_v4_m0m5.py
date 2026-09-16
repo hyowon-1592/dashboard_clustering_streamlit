@@ -30,7 +30,7 @@ HEADERS = {
 }
 
 # 데이터가 들어있는 최상위 폴더 경로 지정
-DATA_ROOT = "data_clustering_v1"
+DATA_ROOT = "data_clustering_v4"
 
 # ==========================================
 # 1. 깃허브 연동 및 데이터 파싱 헬퍼 함수

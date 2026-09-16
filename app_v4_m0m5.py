@@ -273,12 +273,12 @@ def render_metric_page(metric_name, metric_desc, df):
 st.sidebar.title("M0~M5 분석 대시보드")
 
 MENUS = {
-    "M0": "상대적 유격 (R 폰트 바운딩박스 높이 기준)",
-    "M1": "상대적 유격 (추출된 모든 글자 평균 높이 기준)",
-    "M2": "상대적 유격 (추출된 모든 글자 면적 스케일 기준)",
-    "M3": "상대적 유격 (랜드마크 Centroid Size 기준)",
-    "M4": "Canonical Space 매핑 후 절대 유격 거리",
-    "M5": "국소 두께(기둥) 대비 유격 비율"
+    "M0",
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5"
 }
 
 if "menu" not in st.session_state:

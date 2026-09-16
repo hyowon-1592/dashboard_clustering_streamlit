@@ -1,45 +1,73 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import os
 import plotly.graph_objects as go
 from sklearn.cluster import KMeans
 from PIL import Image
+import requests
+import io
 
 # ==========================================
-# 0. 페이지 설정 및 상수
+# 0. 페이지 및 깃허브 설정
 # ==========================================
 st.set_page_config(page_title="M0~M5 대시보드", layout="wide")
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 COLOR_MAP = {'0': '#EF553B', '1': '#636EFA', '2': '#00CC96', '3': '#AB63FA', '4': '#FFA15A'}
 DEFAULT_COLOR = '#636EFA' # 클러스터링 안 할 때 쓸 기본 색상
 
+# Streamlit Secrets에서 GitHub 정보 가져오기
+try:
+    GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+    REPO_OWNER = st.secrets["REPO_OWNER"] # 깃허브 아이디 (예: hyowon-1592)
+    REPO_NAME = st.secrets["REPO_NAME"]   # 레포지토리 이름 (예: dashboard_clustering)
+    BRANCH = st.secrets.get("BRANCH", "main")
+except KeyError:
+    st.error("Streamlit Secrets 설정이 누락되었습니다. 깃허브 토큰과 레포지토리 정보를 설정해주세요.")
+    st.stop()
+
+HEADERS = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github.v3.raw"
+}
+
+# 데이터가 들어있는 최상위 폴더 경로 지정
+DATA_ROOT = "data_clustering_v1"
+
 # ==========================================
-# 1. 로컬 연동 및 데이터 파싱 헬퍼 함수
+# 1. 깃허브 연동 및 데이터 파싱 헬퍼 함수
 # ==========================================
 def get_orig_fname(filename):
     return filename.split('_crop')[0] + '_crop' if '_crop' in filename else filename
 
 @st.cache_data(show_spinner=False, max_entries=300)
-def get_image_from_local(folder_name, file_name_without_ext):
+def get_image_from_github(folder_name, file_name_without_ext):
+    """GitHub Private Repo에서 이미지를 다운로드하여 PIL Image로 반환"""
     extensions = ['.jpg', '.png', '.jpeg', '.JPG', '.PNG', '.JPEG']
     for ext in extensions:
-        file_path = os.path.join(BASE_DIR, folder_name, f"{file_name_without_ext}{ext}")
-        if os.path.exists(file_path):
-            return Image.open(file_path)
+        file_path = f"{DATA_ROOT}/{folder_name}/{file_name_without_ext}{ext}"
+        url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{file_path}"
+        
+        response = requests.get(url, headers=HEADERS)
+        if response.status_code == 200:
+            return Image.open(io.BytesIO(response.content))
     return None
 
 @st.cache_data(show_spinner=False)
-def get_text_from_local(file_path):
-    full_path = os.path.join(BASE_DIR, file_path)
-    if os.path.exists(full_path):
-        with open(full_path, "r", encoding="utf-8") as f:
-            return f.read()
-    return None
+def get_text_from_github(file_path):
+    """GitHub Private Repo에서 텍스트 파일을 읽어오기"""
+    url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{DATA_ROOT}/{file_path}"
+    response = requests.get(url, headers=HEADERS)
+    
+    if response.status_code == 200:
+        return response.text
+    else:
+        st.error(f"요청 URL: {url}")
+        st.error(f"실패 상태 코드: {response.status_code}")
+        st.error(f"깃허브 응답 내용: {response.text}")
+        return None
 
 @st.cache_data
 def load_and_parse_m_metrics(file_path):
-    text = get_text_from_local(file_path)
+    text = get_text_from_github(file_path)
     if not text: return None
     
     data_dict = {}
@@ -77,7 +105,7 @@ def render_metric_page(metric_name, metric_desc, df):
         st.error(f"{metric_name} 데이터를 찾을 수 없습니다.")
         return
         
-    # [추가됨] 결측치(측정 실패) 데이터 따로 빼두기
+    # 결측치(측정 실패) 데이터 따로 빼두기
     missing_df = df[df[metric_name].isna()][['filename']].copy()
     
     # 정상 측정된 데이터만 필터링
@@ -176,7 +204,7 @@ def render_metric_page(metric_name, metric_desc, df):
                 display_df = display_df.drop(columns=['cluster'])
             st.dataframe(display_df, use_container_width=True, hide_index=True)
             
-        # [추가됨] 누락(측정 실패) 데이터 안내 및 표
+        # 누락(측정 실패) 데이터 안내 및 표
         if not missing_df.empty:
             st.warning(f"{len(missing_df)}개의 폰트는 폴리곤 인식 실패 등으로 인해 {metric_name} 값이 측정되지 않았습니다.")
             with st.expander("측정 실패 폰트 목록 보기", expanded=False):
@@ -189,9 +217,9 @@ def render_metric_page(metric_name, metric_desc, df):
             orig_fname = get_orig_fname(selected_filename)
             actual_crop = f"{selected_filename}_R_measured"
             
-            orig_img = get_image_from_local("Seg_Mask_Labeling", orig_fname)
-            if not orig_img: orig_img = get_image_from_local("Seg_RGB", orig_fname)
-            crop_img = get_image_from_local("R_result", actual_crop)
+            orig_img = get_image_from_github("Seg_Mask_Labeling", orig_fname)
+            if not orig_img: orig_img = get_image_from_github("Seg_RGB", orig_fname)
+            crop_img = get_image_from_github("R_result", actual_crop)
             
             c1, c2 = st.columns(2)
             if orig_img: c1.image(orig_img, caption="원본", use_container_width=True)
@@ -212,12 +240,12 @@ def render_metric_page(metric_name, metric_desc, df):
                     st.markdown(f"<div style='background-color: {bg_color}; padding: 5px; border-radius: 5px; color: white; text-align: center; margin-bottom: 10px;'><b>{font_id}{group_label}</b></div>", unsafe_allow_html=True)
                     img_c1, img_c2 = st.columns(2)
                     
-                    orig_img = get_image_from_local("Seg_Mask_Labeling", orig_fname)
-                    if not orig_img: orig_img = get_image_from_local("Seg_RGB", orig_fname)
+                    orig_img = get_image_from_github("Seg_Mask_Labeling", orig_fname)
+                    if not orig_img: orig_img = get_image_from_github("Seg_RGB", orig_fname)
                     if orig_img: img_c1.image(orig_img, caption="원본", use_container_width=True)
                     else: img_c1.caption("원본 없음")
                     
-                    crop_img = get_image_from_local("R_result", actual_crop)
+                    crop_img = get_image_from_github("R_result", actual_crop)
                     if crop_img: img_c2.image(crop_img, caption="결과", use_container_width=True)
                     else: img_c2.caption("결과 없음")
                     
@@ -247,7 +275,8 @@ for m_key in MENUS.keys():
     btn_type = "primary" if st.session_state.menu == m_key else "secondary"
     st.sidebar.button(f"{m_key} 지표 분석", type=btn_type, use_container_width=True, on_click=change_menu, args=(m_key,))
 
-file_path = os.path.join("R_result", "M0_M5_Analysis.txt")
+# 윈도우 환경 호환성 및 URL 규칙을 위해 os.path.join 대신 슬래시(/) 문자열로 직접 지정
+file_path = "R_result/M0_M5_Analysis.txt"
 df = load_and_parse_m_metrics(file_path)
 
 if df is not None:

@@ -118,7 +118,7 @@ def render_metric_page(metric_name, metric_desc, df):
 
     header_col1, header_col2 = st.columns([2, 1])
     header_col1.title(f"{metric_name} 지표 분석")
-    st.caption(f"**설명:** {metric_desc}")
+    # st.caption(f"**설명:** {metric_desc}")
     
     col1, col2 = st.columns([2, 1])
     with col1:
@@ -297,6 +297,6 @@ df = load_and_parse_m_metrics(file_path)
 
 if df is not None:
     current_menu = st.session_state.menu
-    render_metric_page(current_menu, MENUS[current_menu], df)
+    render_metric_page(current_menu, "", df)
 else:
     st.error(f"분석 결과 파일을 불러올 수 없습니다. 경로를 확인해주세요: `{file_path}`")

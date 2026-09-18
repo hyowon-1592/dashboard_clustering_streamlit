@@ -374,4 +374,4 @@ elif menu == "R 너비 대비 유격 비율 분석 (%)":
     folder_name = "R_result"
     file_path = f"{folder_name}/R_analysis.txt"
     df = load_data_r_gap(file_path)
-    render_1d_page("R 폰트 유격 비율(%) 분포", df, "유격 비율 (%)", file_path, folder_name, suffix="_R_leg")
+    render_1d_page("R 너비 대비 폰트 유격 비율(%) 분포", df, "유격 비율 (%)", file_path, folder_name, suffix="_R_leg")

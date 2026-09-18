@@ -253,7 +253,7 @@ def render_1d_page(title, df, x_label, file_path, result_folder, suffix=""):
         
         # 슬라이더 동적 포맷 설정 (소수점 자릿수 계산)
         max_decimals = df['value'].astype(str).apply(lambda x: len(x.split('.')[1]) if '.' in x else 0).max()
-        max_decimals = min(max_decimals, 6)
+        max_decimals = min(max_decimals, 2)
         
         val_range = max_val - min_val
         min_step = 1 / (10 ** max_decimals) if max_decimals > 0 else 0.01

@@ -11,8 +11,8 @@ import io
 # ==========================================
 # 0. 페이지 및 깃허브 설정
 # ==========================================
-st.set_page_config(page_title="R 폰트 분석 대시보드", layout="wide")
-MAIN_COLOR = '#636EFA' # 클러스터링 제거로 단일 포인트 색상 사용
+st.set_page_config(page_title="R 폰트 대시보드", layout="wide")
+MAIN_COLOR = '#636EFA'
 
 # Streamlit Secrets에서 GitHub 정보 가져오기
 try:
@@ -343,10 +343,10 @@ def render_1d_page(title, df, x_label, file_path, result_folder, suffix=""):
     show_front_image_list(selected_df)
 
 
-st.sidebar.title("R 폰트 분석 필터링")
+st.sidebar.title("R 폰트")
 
 if "menu" not in st.session_state:
-    st.session_state.menu = "R 너비 대비 중심점 비율 분석"
+    st.session_state.menu = "R 너비 대비 중심점 비율 분석 (%)"
 
 def change_menu(new_menu):
     st.session_state.menu = new_menu
@@ -356,22 +356,22 @@ def nav_button(label):
     st.sidebar.button(label, type=btn_type, use_container_width=True, on_click=change_menu, args=(label,))
 
 st.sidebar.markdown("<br><b>--- [R 폰트 분석] ---</b>", unsafe_allow_html=True)
-nav_button("R 너비 대비 중심점 비율 분석")
-nav_button("R 유격 비율 분석 (%)")
+nav_button("R 너비 대비 중심점 비율 분석 (%)")
+nav_button("R 너비 대비 유격 비율 분석 (%)")
 
 menu = st.session_state.menu
 
 # ==========================================
 # (이하 각 페이지 조건문 로직)
 # ==========================================
-if menu == "R 너비 대비 중심점 비율 분석":
+if menu == "R 너비 대비 중심점 비율 분석 (%)":
     folder_name = "R_result_combined"
     file_path = f"{folder_name}/R_analysis_combined.txt"
     df = load_data_r_combined(file_path)
     render_1d_page("R 전체 너비 대비 중심점 X거리 비율(%) 분포", df, "비율 (%)", file_path, folder_name, suffix="_combined")
 
-elif menu == "R 유격 비율 분석 (%)":
+elif menu == "R 너비 대비 유격 비율 분석 (%)":
     folder_name = "R_result"
-    file_path = f"{folder_name}/R_analysis.txt" # os.path.join 대신 / 사용
+    file_path = f"{folder_name}/R_analysis.txt"
     df = load_data_r_gap(file_path)
     render_1d_page("R 폰트 유격 비율(%) 분포", df, "유격 비율 (%)", file_path, folder_name, suffix="_R_leg")

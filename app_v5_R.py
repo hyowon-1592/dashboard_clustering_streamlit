@@ -357,7 +357,7 @@ def nav_button(label):
 
 st.sidebar.markdown("<br><b>--- [R 폰트 분석] ---</b>", unsafe_allow_html=True)
 nav_button("R 너비 대비 중심점 비율 분석")
-# nav_button("R 유격 비율 분석 (%)")
+nav_button("R 유격 비율 분석 (%)")
 
 menu = st.session_state.menu
 
@@ -370,8 +370,8 @@ if menu == "R 너비 대비 중심점 비율 분석":
     df = load_data_r_combined(file_path)
     render_1d_page("R 전체 너비 대비 중심점 X거리 비율(%) 분포", df, "비율 (%)", file_path, folder_name, suffix="_combined")
 
-# elif menu == "R 유격 비율 분석 (%)":
-#     folder_name = "R_result"
-#     file_path = f"{folder_name}/R_analysis.txt" # os.path.join 대신 / 사용
-#     df = load_data_r_gap(file_path)
-#     render_1d_page("R 폰트 유격 비율(%) 분포", df, "유격 비율 (%)", file_path, folder_name, suffix="_R_leg")
+elif menu == "R 유격 비율 분석 (%)":
+    folder_name = "R_result"
+    file_path = f"{folder_name}/R_analysis.txt" # os.path.join 대신 / 사용
+    df = load_data_r_gap(file_path)
+    render_1d_page("R 폰트 유격 비율(%) 분포", df, "유격 비율 (%)", file_path, folder_name, suffix="_R_leg")

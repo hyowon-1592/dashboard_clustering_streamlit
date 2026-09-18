@@ -368,7 +368,7 @@ if menu == "R 너비 대비 중심점 비율 분석 (%)":
     folder_name = "R_result_combined"
     file_path = f"{folder_name}/R_analysis_combined.txt"
     df = load_data_r_combined(file_path)
-    render_1d_page("R 전체 너비 대비 중심점 X거리 비율(%) 분포", df, "비율 (%)", file_path, folder_name, suffix="_combined")
+    render_1d_page("R 너비 대비 중심점 X거리 비율(%) 분포", df, "비율 (%)", file_path, folder_name, suffix="_combined")
 
 elif menu == "R 너비 대비 유격 비율 분석 (%)":
     folder_name = "R_result"

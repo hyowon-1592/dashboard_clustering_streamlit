@@ -129,7 +129,7 @@ def show_front_image_list(df):
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.dataframe(res_df, use_container_width=True, hide_index=True)
+        st.dataframe(res_df, =True, hide_index=True)
         
     with col2:
         if available_files:
@@ -141,7 +141,7 @@ def show_front_image_list(df):
                     img = get_front_image_from_github(img_file)
                 
                 if img:
-                    st.image(img, caption=f"[{selected_font}] {img_file}", use_container_width=True)
+                    st.image(img, caption=f"[{selected_font}] {img_file}", =True)
                 else:
                     st.error("이미지를 불러오지 못했습니다.")
         else:
@@ -183,7 +183,7 @@ def show_front_image_grid(df):
             img = get_front_image_from_github(matched_file)
             if img:
                 with cols[col_idx % 5]:
-                    st.image(img, use_container_width=True, caption=matched_file)
+                    st.image(img, =True, caption=matched_file)
                 col_idx += 1
     
     if col_idx == 0:
@@ -299,7 +299,7 @@ def render_1d_page(title, df, x_label, file_path, result_folder, suffix=""):
         fig.update_yaxes(visible=False, showticklabels=False)
         fig.update_layout(height=600, margin=dict(l=10, r=10, t=30, b=10), xaxis_title=x_label)
         
-        event = st.plotly_chart(fig, on_select="rerun", selection_mode="points", use_container_width=True, key=f"chart_1d_{result_folder}_{suffix}")
+        event = st.plotly_chart(fig, on_select="rerun", selection_mode="points", width="stretch", key=f"chart_1d_{result_folder}_{suffix}")
             
     with col2:
         st.subheader("선택된 이미지 확인")
@@ -312,8 +312,8 @@ def render_1d_page(title, df, x_label, file_path, result_folder, suffix=""):
             crop_img = get_image_from_github(result_folder, actual_crop)
             
             c1, c2 = st.columns(2)
-            if orig_img: c1.image(orig_img, caption="원본", use_container_width=True)
-            if crop_img: c2.image(crop_img, caption="결과(크롭)", use_container_width=True)
+            if orig_img: c1.image(orig_img, caption="원본", width="stretch")
+            if crop_img: c2.image(crop_img, caption="결과(크롭)", width="stretch")
             st.divider()
             
         with st.expander(f"범위 내 데이터 카드 모두 보기 ({len(selected_df)}개)", expanded=False):
@@ -328,11 +328,11 @@ def render_1d_page(title, df, x_label, file_path, result_folder, suffix=""):
                     img_c1, img_c2 = st.columns(2)
                     
                     orig_img = get_image_from_github("Seg_RGB", orig_fname)
-                    if orig_img: img_c1.image(orig_img, caption="원본", use_container_width=True)
+                    if orig_img: img_c1.image(orig_img, caption="원본", width="stretch")
                     else: img_c1.caption("원본 없음")
                     
                     crop_img = get_image_from_github(result_folder, actual_crop)
-                    if crop_img: img_c2.image(crop_img, caption="결과", use_container_width=True)
+                    if crop_img: img_c2.image(crop_img, caption="결과", width="stretch")
                     else: img_c2.caption("결과 없음")
                     
                     # 카드 내부 수치도 동적 소수점 적용
@@ -353,7 +353,7 @@ def change_menu(new_menu):
 
 def nav_button(label):
     btn_type = "primary" if st.session_state.menu == label else "secondary"
-    st.sidebar.button(label, type=btn_type, use_container_width=True, on_click=change_menu, args=(label,))
+    st.sidebar.button(label, type=btn_type, width="stretch", on_click=change_menu, args=(label,))
 
 st.sidebar.markdown("<br><b>--- [R 폰트 분석] ---</b>", unsafe_allow_html=True)
 nav_button("R 너비 대비 중심점 비율 분석 (%)")

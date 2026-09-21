@@ -129,7 +129,7 @@ def show_front_image_list(df):
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.dataframe(res_df, =True, hide_index=True)
+        st.dataframe(res_df, width=True, hide_index=True)
         
     with col2:
         if available_files:
@@ -141,7 +141,7 @@ def show_front_image_list(df):
                     img = get_front_image_from_github(img_file)
                 
                 if img:
-                    st.image(img, caption=f"[{selected_font}] {img_file}", =True)
+                    st.image(img, caption=f"[{selected_font}] {img_file}", width=True)
                 else:
                     st.error("이미지를 불러오지 못했습니다.")
         else:
@@ -183,7 +183,7 @@ def show_front_image_grid(df):
             img = get_front_image_from_github(matched_file)
             if img:
                 with cols[col_idx % 5]:
-                    st.image(img, =True, caption=matched_file)
+                    st.image(img, width=True, caption=matched_file)
                 col_idx += 1
     
     if col_idx == 0:

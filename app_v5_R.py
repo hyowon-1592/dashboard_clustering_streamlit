@@ -118,10 +118,10 @@ def show_front_image_list(df):
     for prefix in prefixes:
         matched_file = find_front_image(prefix, front_file_list)
         if matched_file:
-            table_data.append({"폰트명": prefix, "전면 사진 파일명": matched_file, "상태": "확인 가능"})
+            table_data.append({"감정번호": prefix, "전면 사진 파일명": matched_file, "상태": "확인 가능"})
             available_files[prefix] = matched_file
         else:
-            table_data.append({"폰트명": prefix, "전면 사진 파일명": "-", "상태": "파일 없음"})
+            table_data.append({"감정번호": prefix, "전면 사진 파일명": "-", "상태": "파일 없음"})
             
     res_df = pd.DataFrame(table_data)
     

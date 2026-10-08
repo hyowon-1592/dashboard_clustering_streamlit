@@ -160,7 +160,8 @@ def get_front_image_from_github(file_name):
 # ==========================================
 # 2. 데이터 처리 (R 폰트 라벨 비교 전용)
 # ==========================================
-@st.cache_data
+
+@st.cache_data(show_spinner=False)
 def load_data_r_compared(file_path1, file_path2):
     """Label 1, 2 두 개의 데이터를 읽고 교집합을 구한 뒤 합쳐서 반환"""
     text_data1 = get_text_from_github(file_path1)
@@ -183,22 +184,30 @@ def load_data_r_compared(file_path1, file_path2):
     df2 = parse_text(text_data2)
     
     if df1.empty or df2.empty: 
-        st.error("파일은 읽었으나 정규식 패턴에 맞는 데이터가 없습니다.")
         return None
 
-    # 교집합 처리 (Label 2에 없으면 Label 1에서도 표시 안 함)
-    common_files = set(df1['filename']).intersection(set(df2['filename']))
+    # 🔥 [핵심 추가] 파일명에서 '_crop' 앞부분(기본 폰트명)만 추출하여 새로운 열(base_name) 생성
+    df1['base_name'] = df1['filename'].apply(lambda x: x.split('_crop')[0].strip())
+    df2['base_name'] = df2['filename'].apply(lambda x: x.split('_crop')[0].strip())
+
+    # base_name을 기준으로 교집합 찾기
+    common_bases = set(df1['base_name']).intersection(set(df2['base_name']))
     
-    df1 = df1[df1['filename'].isin(common_files)].copy()
-    df2 = df2[df2['filename'].isin(common_files)].copy()
+    if len(common_bases) == 0:
+        st.error("❌ 파일명의 '_crop' 앞부분을 기준으로 비교했지만 겹치는 파일이 없습니다.")
+        return None
     
-    df1['label'] = 'Label 1'
-    df2['label'] = 'Label 2'
+    # 공통된 base_name을 가진 데이터만 남기기
+    df1 = df1[df1['base_name'].isin(common_bases)].copy()
+    df2 = df2[df2['base_name'].isin(common_bases)].copy()
+    
+    df1['label'] = '강남팀 라벨링'
+    df2['label'] = '훈님 라벨링'
     
     # 두 라벨의 데이터를 하나로 결합
     df = pd.concat([df1, df2], ignore_index=True)
     
-    # 그래프 시각화를 위해 jitter 부여 (Label 1은 윗단, Label 2는 아랫단에 배치하여 겹치지 않게 함)
+    # 그래프 시각화를 위해 jitter 부여
     np.random.seed(42)
     df.loc[df['label'] == 'Label 1', 'jitter'] = np.random.uniform(0.6, 1.4, size=len(df1))
     df.loc[df['label'] == 'Label 2', 'jitter'] = np.random.uniform(-0.4, 0.4, size=len(df2))

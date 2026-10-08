@@ -214,6 +214,178 @@ def load_data_r_compared(file_path1, file_path2):
     
     return df
 
+# # ==========================================
+# # 3. 페이지 렌더링 함수 (비교 버전)
+# # ==========================================
+# def render_1d_page_compared(title, df, x_label, folder1, folder2, suffix=""):
+#     if df is None:
+#         return
+
+#     header_col1, header_col2 = st.columns([2, 1])
+#     header_col1.title(title)
+    
+#     col1, col2 = st.columns([2, 1])
+#     with col1:
+#         min_val, max_val = float(df['value'].min()), float(df['value'].max())
+        
+#         # 슬라이더 동적 포맷 설정
+#         max_decimals = df['value'].astype(str).apply(lambda x: len(x.split('.')[1]) if '.' in x else 0).max()
+#         max_decimals = min(max_decimals, 2)
+        
+#         val_range = max_val - min_val
+#         min_step = 1 / (10 ** max_decimals) if max_decimals > 0 else 0.01
+#         step_size = val_range / 100.0 if val_range > 0 else min_step
+        
+#         selected_range = st.slider(
+#             f"{x_label} 범위 필터", 
+#             min_value=min_val, 
+#             max_value=max_val, 
+#             value=(min_val, max_val),
+#             step=step_size,
+#             format=f"%.{max_decimals}f"
+#         )
+        
+#         mask = (df['value'] >= selected_range[0]) & (df['value'] <= selected_range[1])
+#         df['is_selected'] = mask
+#         selected_df = df[mask]
+        
+#         # 고유 데이터(폰트) 기준 개수 계산
+#         unique_total = len(df['filename'].unique())
+#         unique_selected = len(selected_df['filename'].unique())
+
+#         header_col2.markdown(
+#             f"<div style='text-align: right; margin-top: 25px; color: #a1c8ff; font-weight: bold;'>"
+#             f"전체 폰트: {unique_total}개 | <span style='color: #4CAF50;'>조건 만족: {unique_selected}개</span></div>", 
+#             unsafe_allow_html=True
+#         )
+        
+#         # Plotly 그래프 생성
+#         fig = go.Figure()
+        
+#         color_map = {'Label 1': COLOR_LABEL1, 'Label 2': COLOR_LABEL2}
+#         dim_map = {'Label 1': COLOR_L1_DIM, 'Label 2': COLOR_L2_DIM}
+        
+#         for lbl in ['Label 1', 'Label 2']:
+#             lbl_df = df[df['label'] == lbl]
+#             unselected = lbl_df[~lbl_df['is_selected']]
+#             selected = lbl_df[lbl_df['is_selected']]
+            
+#             # 선택되지 않은 점들 (연하게)
+#             fig.add_trace(go.Scatter(
+#                 x=unselected['value'], y=unselected['jitter'], mode='markers',
+#                 marker=dict(color=dim_map[lbl], size=6), hoverinfo='skip', showlegend=False
+#             ))
+            
+#             # 선택된 점들 (진하게)
+#             fig.add_trace(go.Scatter(
+#                 x=selected['value'], y=selected['jitter'], mode='markers',
+#                 marker=dict(color=color_map[lbl], size=8),
+#                 name=lbl, customdata=selected[['filename', 'label']],
+#                 hovertemplate="<b>%{customdata[0]}</b><br>Label: %{customdata[1]}<br>"+x_label+f": %{{x:.{max_decimals}f}}<extra></extra>"
+#             ))
+            
+#         fig.add_vrect(x0=selected_range[0], x1=selected_range[1],
+#                       fillcolor="green", opacity=0.15, layer="below", line_width=2, line_color="#4CAF50")
+        
+#         fig.update_yaxes(visible=False, showticklabels=False)
+#         fig.update_layout(height=600, margin=dict(l=10, r=10, t=30, b=10), xaxis_title=x_label, legend_title="Labels")
+        
+#         # 차트 렌더링
+#         event = st.plotly_chart(fig, on_select="rerun", selection_mode="points", width="stretch", key=f"chart_1d_compared")
+            
+#     with col2:
+#         st.subheader("선택된 이미지 확인")
+#         if event and len(event.selection.points) > 0 and "customdata" in event.selection.points[0]:
+#             selected_filename = event.selection.points[0]["customdata"][0]
+#             selected_label = event.selection.points[0]["customdata"][1]
+#             orig_fname = get_orig_fname(selected_filename)
+#             actual_crop = f"{selected_filename}{suffix}"
+            
+#             # Label에 맞는 폴더 선택
+#             target_folder = folder1 if selected_label == 'Label 1' else folder2
+            
+#             orig_img = get_image_from_github("Seg_RGB", orig_fname)
+#             crop_img = get_image_from_github(target_folder, actual_crop)
+            
+#             label_color = COLOR_LABEL1 if selected_label == 'Label 1' else COLOR_LABEL2
+#             st.markdown(f"**현재 선택 라벨:** <span style='color:{label_color};'>{selected_label}</span>", unsafe_allow_html=True)
+            
+#             c1, c2 = st.columns(2)
+#             if orig_img: c1.image(orig_img, caption="원본", use_container_width=True)
+#             if crop_img: c2.image(crop_img, caption=f"결과(크롭)", use_container_width=True)
+#             st.divider()
+            
+#         with st.expander(f"범위 내 데이터 카드 모두 보기 (총 {len(selected_df)}건)", expanded=False):
+#             card_container = st.container(height=550)
+            
+#             # 정렬하여 같은 폰트의 Label 1, Label 2가 인접하게 표시되도록 설정
+#             sorted_selected_df = selected_df.sort_values(by=['filename', 'label'])
+            
+#             for idx, row in sorted_selected_df.iterrows():
+#                 font_id = row['filename'].split(' ')[0] 
+#                 orig_fname = get_orig_fname(row['filename'])
+#                 actual_crop = f"{row['filename']}{suffix}"
+                
+#                 # 라벨별 카드 색상 및 폴더 분기
+#                 card_color = COLOR_LABEL1 if row['label'] == 'Label 1' else COLOR_LABEL2
+#                 target_folder = folder1 if row['label'] == 'Label 1' else folder2
+                
+#                 with card_container.container(border=True):
+#                     st.markdown(f"<div style='background-color: {card_color}; padding: 5px; border-radius: 5px; color: white; text-align: center; margin-bottom: 10px;'><b>[{row['label']}] {font_id}</b></div>", unsafe_allow_html=True)
+#                     img_c1, img_c2 = st.columns(2)
+                    
+#                     orig_img = get_image_from_github("Seg_RGB", orig_fname)
+#                     if orig_img: img_c1.image(orig_img, caption="원본", use_container_width=True)
+#                     else: img_c1.caption("원본 없음")
+                    
+#                     crop_img = get_image_from_github(target_folder, actual_crop)
+#                     if crop_img: img_c2.image(crop_img, caption=f"{row['label']} 결과", use_container_width=True)
+#                     else: img_c2.caption("결과 없음")
+                    
+#                     format_str = f"{x_label}: {{:.{max_decimals}f}}"
+#                     st.caption(format_str.format(row['value']))
+                    
+#     show_front_image_list(selected_df)
+
+
+
+
+def show_comparison_table(df, max_decimals):
+    """선택된 데이터의 Label 1과 Label 2 수치를 비교하는 표 렌더링"""
+    st.divider()
+    st.subheader("📊 라벨 수치 비교표")
+    
+    if df.empty:
+        st.info("선택된 데이터가 없습니다.")
+        return
+        
+    # base_name(파일명) 기준으로 Label 1과 Label 2 데이터를 양옆으로 펼치기 (Pivot)
+    pivot_df = df.pivot_table(index='base_name', columns='label', values='value', aggfunc='first').reset_index()
+    pivot_df.columns.name = None # 인덱스 이름 정리
+    
+    # 열 이름 변경
+    rename_dict = {'base_name': '파일명'}
+    if 'Label 1' in pivot_df.columns:
+        rename_dict['Label 1'] = 'Label 1 수치'
+    if 'Label 2' in pivot_df.columns:
+        rename_dict['Label 2'] = 'Label 2 수치'
+        
+    pivot_df = pivot_df.rename(columns=rename_dict)
+    
+    # 범위 필터링 때문에 한쪽 라벨만 선택된 경우, 빈칸(NaN)을 '-'로 처리
+    pivot_df = pivot_df.fillna("-")
+    
+    # 소수점 자릿수 깔끔하게 맞추기
+    for col in ['Label 1 수치', 'Label 2 수치']:
+        if col in pivot_df.columns:
+            pivot_df[col] = pivot_df[col].apply(
+                lambda x: f"{x:.{max_decimals}f}" if isinstance(x, (int, float)) else x
+            )
+            
+    # 화면에 표 출력
+    st.dataframe(pivot_df, use_container_width=True, hide_index=True)
+
+
 # ==========================================
 # 3. 페이지 렌더링 함수 (비교 버전)
 # ==========================================
@@ -250,8 +422,8 @@ def render_1d_page_compared(title, df, x_label, folder1, folder2, suffix=""):
         selected_df = df[mask]
         
         # 고유 데이터(폰트) 기준 개수 계산
-        unique_total = len(df['filename'].unique())
-        unique_selected = len(selected_df['filename'].unique())
+        unique_total = len(df['base_name'].unique())
+        unique_selected = len(selected_df['base_name'].unique())
 
         header_col2.markdown(
             f"<div style='text-align: right; margin-top: 25px; color: #a1c8ff; font-weight: bold;'>"
@@ -319,10 +491,10 @@ def render_1d_page_compared(title, df, x_label, folder1, folder2, suffix=""):
             card_container = st.container(height=550)
             
             # 정렬하여 같은 폰트의 Label 1, Label 2가 인접하게 표시되도록 설정
-            sorted_selected_df = selected_df.sort_values(by=['filename', 'label'])
+            sorted_selected_df = selected_df.sort_values(by=['base_name', 'label'])
             
             for idx, row in sorted_selected_df.iterrows():
-                font_id = row['filename'].split(' ')[0] 
+                font_id = row['base_name'] 
                 orig_fname = get_orig_fname(row['filename'])
                 actual_crop = f"{row['filename']}{suffix}"
                 
@@ -345,7 +517,8 @@ def render_1d_page_compared(title, df, x_label, folder1, folder2, suffix=""):
                     format_str = f"{x_label}: {{:.{max_decimals}f}}"
                     st.caption(format_str.format(row['value']))
                     
-    show_front_image_list(selected_df)
+    # 전면 사진 대신 비교 표 렌더링 함수 호출
+    show_comparison_table(selected_df, max_decimals)
 
 st.sidebar.title("R 폰트(compared)")
 

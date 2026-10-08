@@ -353,7 +353,7 @@ def load_data_r_compared(file_path1, file_path2):
 def show_comparison_table(df, max_decimals):
     """선택된 데이터의 Label 1과 Label 2 수치를 비교하는 표 렌더링"""
     st.divider()
-    st.subheader("📊 라벨 수치 비교표")
+    st.subheader("===라벨 수치 비교표===")
     
     if df.empty:
         st.info("선택된 데이터가 없습니다.")

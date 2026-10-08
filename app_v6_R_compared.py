@@ -190,14 +190,43 @@ def show_front_image_grid(df):
         st.info("전면 사진 파일이 없습니다.")
 
 
-# ==========================================
-# 2. 데이터 처리 (R 폰트 전용)
-# ==========================================
+# # ==========================================
+# # 2. 데이터 처리 (R 폰트 전용)
+# # ==========================================
+# @st.cache_data
+# def load_data_r_combined(file_path):
+#     """R의 전체 너비 대비 중앙점 X 거리 비율(%) 추출"""
+#     text_data = get_text_from_github(file_path)
+#     if not text_data: return None
+    
+#     data_list = []
+#     pattern = re.compile(r"\[(.*?)\].*?비율:\s*([\d\.]+)%")
+#     for line in text_data.split('\n'):
+#         match = pattern.search(line.strip())
+#         if match:
+#             data_list.append({"filename": match.group(1).strip(), "value": float(match.group(2))})
+            
+#     if not data_list: return None
+#     df = pd.DataFrame(data_list)
+#     np.random.seed(42)
+#     df['jitter'] = np.random.uniform(-0.5, 0.5, size=len(df))
+#     return df
+
+
+
+
+
+
 @st.cache_data
 def load_data_r_combined(file_path):
     """R의 전체 너비 대비 중앙점 X 거리 비율(%) 추출"""
     text_data = get_text_from_github(file_path)
-    if not text_data: return None
+    
+    # 1. 파일을 아예 못 읽어온 경우
+    if not text_data: 
+        st.error(f"깃허브에서 텍스트 파일을 읽어오지 못했습니다. (경로, 권한, 브랜치명 오류)")
+        st.write(f"요청된 파일 경로: {build_repo_path(file_path)}")
+        return None
     
     data_list = []
     pattern = re.compile(r"\[(.*?)\].*?비율:\s*([\d\.]+)%")
@@ -206,11 +235,22 @@ def load_data_r_combined(file_path):
         if match:
             data_list.append({"filename": match.group(1).strip(), "value": float(match.group(2))})
             
-    if not data_list: return None
+    # 2. 파일은 읽었으나 정규식 패턴에 맞는 내용이 없는 경우
+    if not data_list: 
+        st.error("파일은 성공적으로 읽었으나, 정규식 형태(`[파일명]...비율: 숫자%`)와 일치하는 데이터가 없습니다.")
+        st.expander("읽어온 txt 파일 내용 확인").write(text_data) # 실제 읽어온 텍스트 화면에 출력해보기
+        return None
+        
     df = pd.DataFrame(data_list)
     np.random.seed(42)
     df['jitter'] = np.random.uniform(-0.5, 0.5, size=len(df))
     return df
+
+
+
+
+
+
 
 @st.cache_data
 def load_data_r_gap(file_path):

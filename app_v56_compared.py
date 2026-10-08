@@ -549,4 +549,4 @@ if menu == "R 너비 대비 중심점 비율 분석 (%)":
     file_path2 = f"{folder2}/R_analysis_combined.txt"
     
     df = load_data_r_compared(file_path1, file_path2)
-    render_1d_page_compared("R 너비 대비 중심점 X거리 비율(%) 비교 분포(label 1: 강남팀 누끼, label 2: 훈님 누끼)", df, "비율 (%)", folder1, folder2, suffix="_combined")
+    render_1d_page_compared("label 1: 강남팀 누끼, label 2: 훈님 누끼", df, "비율 (%)", folder1, folder2, suffix="_combined")

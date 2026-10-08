@@ -201,8 +201,8 @@ def load_data_r_compared(file_path1, file_path2):
     df1 = df1[df1['base_name'].isin(common_bases)].copy()
     df2 = df2[df2['base_name'].isin(common_bases)].copy()
     
-    df1['label'] = '강남팀 라벨링'
-    df2['label'] = '훈님 라벨링'
+    df1['label'] = 'Label 1'
+    df2['label'] = 'Label 2'
     
     # 두 라벨의 데이터를 하나로 결합
     df = pd.concat([df1, df2], ignore_index=True)
